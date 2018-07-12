@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+mock = "*"
+
+[packages]
+gpiozero = "*"
+picamera = "*"
+python-telegram-bot = "*"
+"RPi.GPIO" = "*"
+pycparser = "*"
+
+[requires]
+python_version = "3.5"

@@ -1,0 +1,6 @@
+.idea/
+my_image.jpg
+config.ini
+snippets/
+__pycache__
+*.pyc
