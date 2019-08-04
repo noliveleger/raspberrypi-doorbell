@@ -3,7 +3,7 @@ print("buzzer")
 from gpiozero import Buzzer
 from time import sleep
 print("Before")
-bz = Buzzer(20)
+bz = Buzzer(26)
 #bz.beep(0.4, 0.4, 1)
 bz.on()
 sleep(0.4)

@@ -1,4 +1,5 @@
 # -*- code utf-8 -*-
+import datetime
 import os
 from threading import Thread
 
@@ -20,20 +21,24 @@ class Telegram(Thread):
         self.__picture_path = picture_path
 
     def run(self):
-
+        now = datetime.datetime.now().replace(microsecond=0).isoformat()
         if self.__picture_path is None:
             bot.send_message(chat_id=config.get('TELEGRAM_CHAT_ID'),
-                             text="Ça sonne à la porte!")
+                             text='[{}] - Ça sonne à la porte!'.format(now))
             logger.info('Ring notification sent to Telegram')
         elif os.path.isfile(self.__picture_path):
-            attachment = open(self.__picture_path, 'rb')
-            bot.send_photo(chat_id=config.get('TELEGRAM_CHAT_ID'),
-                           photo=attachment,
-                           caption="Photo",
-                           disable_notification=True)
-            logger.info('Photo sent to Telegram')
+            if os.path.getsize(self.__picture_path) > 0:
+                attachment = open(self.__picture_path, 'rb')
+                bot.send_photo(chat_id=config.get('TELEGRAM_CHAT_ID'),
+                               photo=attachment,
+                               caption='[{}] - Photo'.format(now),
+                               disable_notification=True)
+                logger.info('Photo sent to Telegram')
+            else:
+                logger.error('Photo was empty.')
             os.remove(self.__picture_path)
             logger.info('Photo deleted from disk')
+
         else:
             logger.error('{} does not exist!'.format(self.__picture_path))
 

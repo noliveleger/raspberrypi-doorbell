@@ -23,8 +23,8 @@ def button_pressed():
     delta = datetime.now() - last_pressed
     if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
         logger.debug('Threshold is reached')
-        #bell = Bell()
-        #bell.start()
+        bell = Bell()
+        bell.start()
         camera = Camera(temp_path)
         camera.start()
         message_handler = Telegram()
@@ -42,9 +42,7 @@ def button_released():
 
 
 led.on()
-import time
-time.sleep(10)
-button_pressed()
+
 button.when_pressed = button_pressed
 button.when_released = button_released
 
