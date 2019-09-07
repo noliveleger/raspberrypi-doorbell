@@ -1,0 +1,28 @@
+[default]
+TELEGRAM_TOKEN=<token>
+TELEGRAM_CHAT_ID=<chatid>
+TELEGRAM_CHAT_URL=https://t.me/joinchat/<id>
+LOG_LEVEL=<DEBUG|INFO|ERROR>
+FSWEBCAM_BIN=/usr/bin/fswebcam
+FSWEBCAM_DEVICE=/dev/video0
+FSWEBCAM_RESOLUTION=1920x1080
+# Delay to warm-up the cam in s.
+FSWEBCAM_DELAY=1
+# Rotation Angle
+FSWEBCAM_ROTATE=180
+FSWEBCAM_JPG_COMP=90
+# BCM mode
+LED_GPIO=21
+BUTTON_GPIO=20
+BELL_GPIO=19
+# Number of seconds before button can be pressed again
+BUTTON_PRESS_THRESHOLD=10
+
+# IR Cut-Off Pins
+IR_CUTOFF_FORWARD_PIN=24
+IR_CUTOFF_BACKWARD_PIN=25
+IR_CUTOFF_ENABLER_PI=23
+# Astra config
+IR_CUTOFF_CITY=Montreal
+# In minutes
+IR_CUTOFF_OFFSET=15

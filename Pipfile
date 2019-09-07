@@ -13,6 +13,10 @@ picamera = "*"
 python-telegram-bot = "*"
 "RPi.GPIO" = "*"
 pycparser = "*"
+astral = "*"
+peewee = "*"
+cryptography = "*"
+tornado = "*"
 
 [requires]
 python_version = "3.5"

@@ -8,6 +8,7 @@ from gpiozero import LED, Button
 from helpers.bell import Bell
 from helpers.camera import Camera
 from helpers.config import config, logger
+from helpers.ircut import IRCutOff
 from helpers.telegram import Telegram
 
 
@@ -22,7 +23,7 @@ def button_pressed():
     logger.info('Button is pressed...')
     delta = datetime.now() - last_pressed
     if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
-        logger.debug('Threshold is reached')
+        logger.debug('Button has been pressed')
         bell = Bell()
         bell.start()
         camera = Camera(temp_path)
@@ -42,11 +43,12 @@ def button_released():
 
 
 led.on()
-
+ir_cut_off = IRCutOff(force=True)
+ir_cut_off.start()
 button.when_pressed = button_pressed
 button.when_released = button_released
 
-logger.info('Daemon has started!')
+logger.info('Daemon is started!')
 
 try:
     pause()
