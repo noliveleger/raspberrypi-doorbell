@@ -65,3 +65,10 @@ sudo systemctl restart uv4l_uvc@05a3:9422.service
 ```
 
 
+## Electronic Diagrams
+
+TO-DO
+
+## Amazon Dash Button
+Thanks to [Amazon Dash service](https://github.com/Nekmo/amazon-dash ""). 
+It triggers a signal to the daemon which make the bell rings 2 times (instead of one on front-door)

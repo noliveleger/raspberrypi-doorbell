@@ -22,7 +22,6 @@ class IRCutOff(Thread):
 
     def run(self):
         try:
-            logger.info('IRCutOff')
             city_name = config.get('IR_CUTOFF_CITY')
 
             a = Astral()

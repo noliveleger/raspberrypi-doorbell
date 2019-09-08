@@ -12,19 +12,24 @@ bot = telegram.Bot(token=config.get('TELEGRAM_TOKEN'))
 
 class Telegram(Thread):
 
-    def __init__(self, picture_path=None):
+    def __init__(self, picture_path=None, front_door=True):
         """
 
         :param picture_path (str): Absolute Path to picture to send
+        :param front_door (bool)
         """
         super().__init__()
         self.__picture_path = picture_path
+        self.__front_door = front_door
 
     def run(self):
         now = datetime.datetime.now().replace(microsecond=0).isoformat()
         if self.__picture_path is None:
+            message = config.get('TELEGRAM_FRONT_DOOR_MESSAGE') if self.__front_door \
+                else config.get('TELEGRAM_BACK_DOOR_MESSAGE')
+
             bot.send_message(chat_id=config.get('TELEGRAM_CHAT_ID'),
-                             text='[{}] - Ça sonne à la porte!'.format(now))
+                             text='[{}] - {}'.format(now, message))
             logger.info('Ring notification sent to Telegram')
         elif os.path.isfile(self.__picture_path):
             if os.path.getsize(self.__picture_path) > 0:

@@ -1,7 +1,7 @@
 # -*- code utf-8 -*-
 from datetime import datetime
-from tempfile import mkstemp
 from signal import pause
+from tempfile import mkstemp
 
 from gpiozero import LED, Button
 
@@ -9,6 +9,7 @@ from helpers.bell import Bell
 from helpers.camera import Camera
 from helpers.config import config, logger
 from helpers.ircut import IRCutOff
+from helpers.listener import BackDoorBellListener, BackDoorBellEmitter
 from helpers.telegram import Telegram
 
 
@@ -42,9 +43,18 @@ def button_released():
     led.on()
 
 
+# Turn front-door leds on.
 led.on()
+
+# Set IR-CutOff filter in position
 ir_cut_off = IRCutOff(force=True)
 ir_cut_off.start()
+
+# Listen for Amazon Dash Button pushes
+back_doorbell_listener = BackDoorBellListener()
+back_doorbell_listener.start()
+
+# Listen for button events
 button.when_pressed = button_pressed
 button.when_released = button_released
 
@@ -56,6 +66,7 @@ except (SystemExit, KeyboardInterrupt):
     pass
 
 logger.debug('Cleaning up...')
+BackDoorBellEmitter.stop_server()
 led.close()
 button.close()
 logger.info('Daemon has been stop')
