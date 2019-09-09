@@ -1,4 +1,5 @@
 # -*- code utf-8 -*-
 from helpers.listener import BackDoorBellEmitter
 
-BackDoorBellEmitter.send()
+if __name__ == "__main__":
+    BackDoorBellEmitter.send()

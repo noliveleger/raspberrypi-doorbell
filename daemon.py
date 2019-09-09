@@ -43,30 +43,31 @@ def button_released():
     led.on()
 
 
-# Turn front-door leds on.
-led.on()
+if __name__ == "__main__":
+    # Turn front-door leds on.
+    led.on()
 
-# Set IR-CutOff filter in position
-ir_cut_off = IRCutOff(force=True)
-ir_cut_off.start()
+    # Set IR-CutOff filter in position
+    ir_cut_off = IRCutOff(force=True)
+    ir_cut_off.start()
 
-# Listen for Amazon Dash Button pushes
-back_doorbell_listener = BackDoorBellListener()
-back_doorbell_listener.start()
+    # Listen for Amazon Dash Button pushes
+    back_doorbell_listener = BackDoorBellListener()
+    back_doorbell_listener.start()
 
-# Listen for button events
-button.when_pressed = button_pressed
-button.when_released = button_released
+    # Listen for button events
+    button.when_pressed = button_pressed
+    button.when_released = button_released
 
-logger.info('Daemon is started!')
+    logger.info('Daemon is started!')
 
-try:
-    pause()
-except (SystemExit, KeyboardInterrupt):
-    pass
+    try:
+        pause()
+    except (SystemExit, KeyboardInterrupt):
+        pass
 
-logger.debug('Cleaning up...')
-BackDoorBellEmitter.stop_server()
-led.close()
-button.close()
-logger.info('Daemon has been stop')
+    logger.debug('Cleaning up...')
+    BackDoorBellEmitter.stop_server()
+    led.close()
+    button.close()
+    logger.info('Daemon has been stop')

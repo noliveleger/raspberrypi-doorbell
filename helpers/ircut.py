@@ -12,6 +12,9 @@ from helpers.config import config, logger
 
 class IRCutOff(Thread):
 
+    DAY = 1
+    NIGHT = 2
+
     def __init__(self, force=False):
         """
         Toggle day/night mode.
@@ -40,19 +43,8 @@ class IRCutOff(Thread):
             day = beginning_of_day < now < end_of_day
 
             if was_day != day or self.__force:
-                ir_filter = Motor(forward=config.get('IR_CUTOFF_FORWARD_PIN'),
-                                  backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
-                                  enable=config.get('IR_CUTOFF_ENABLER_PIN'),
-                                  pwm=False)
-                if day:
-                    logger.debug('Day mode: Turn IR cut-off filter ON.')
-                    ir_filter.backward()
-                else:
-                    logger.debug('Night mode: Turn IR cut-off filter OFF.')
-                    ir_filter.forward()
-                sleep(0.5)
-                ir_filter.stop()
-                ir_filter.close()
+                mode = self.DAY if day else self.NIGHT
+                self.toggle(mode)
             else:
                 if day:
                     logger.debug('IR cut-off filter already in day mode. Nothing to do.')
@@ -61,3 +53,18 @@ class IRCutOff(Thread):
         except Exception as e:
             logger.error(e)
         return
+
+    def toggle(self, mode):
+        ir_filter = Motor(forward=config.get('IR_CUTOFF_FORWARD_PIN'),
+                          backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
+                          enable=config.get('IR_CUTOFF_ENABLER_PIN'),
+                          pwm=False)
+        if mode == self.DAY:
+            logger.debug('Day mode: Turn IR cut-off filter ON.')
+            ir_filter.backward()
+        else:
+            logger.debug('Night mode: Turn IR cut-off filter OFF.')
+            ir_filter.forward()
+        sleep(0.5)
+        ir_filter.stop()
+        ir_filter.close()
