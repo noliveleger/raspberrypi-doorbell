@@ -1,7 +1,6 @@
 # -*- code utf-8 -*-
 from datetime import datetime
 from signal import pause
-from tempfile import mkstemp
 
 from gpiozero import LED, Button
 
@@ -20,17 +19,16 @@ last_pressed = datetime.now()
 
 def button_pressed():
     global last_pressed
-    file_id, temp_path = mkstemp()
     logger.info('Button is pressed...')
     delta = datetime.now() - last_pressed
     if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
         logger.debug('Button has been pressed')
         bell = Bell()
         bell.start()
-        camera = Camera(temp_path)
-        camera.start()
         message_handler = Telegram()
         message_handler.start()
+        camera = Camera()
+        camera.start()
         last_pressed = datetime.now()
     else:
         logger.debug('Button was pressed too quickly!')

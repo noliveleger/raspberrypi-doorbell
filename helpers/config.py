@@ -21,7 +21,18 @@ class Config:
             raise Exception('Environment not found')
 
     def get(self, value, default=None):
-        return self.__config.get(self.__environment, value, fallback=default)
+        print('VALUE: {}'.format(value))
+        config_value = self.__config.get(self.__environment, value, fallback=default)
+        print('VALUE SET: {}'.format(value))
+        if config_value is None:
+            return config_value
+
+        if config_value.upper() == 'TRUE':
+            config_value = True
+        elif config_value.upper() == 'FALSE':
+            config_value = False
+
+        return config_value
 
 
 config = Config()
