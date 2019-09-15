@@ -32,11 +32,15 @@ class IRCutOff(Thread):
 
             city = a[city_name]
             sun = city.sun(date=datetime.date.today(), local=True)
+
             timezone = pytz.timezone(city.timezone)
             now = datetime.datetime.now(tz=timezone)
-
-            beginning_of_day = sun['dawn'] + datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
-            end_of_day = sun['sunset'] + datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
+            # logger.debug('Dawn:    %s' % str(sun['dawn']))
+            # logger.debug('Sunrise: %s' % str(sun['sunrise']))
+            # logger.debug('Sunset:  %s' % str(sun['sunset']))
+            # logger.debug('Dusk:    %s' % str(sun['dusk']))
+            beginning_of_day = sun['sunrise'] + datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
+            end_of_day = sun['sunset'] - datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
 
             last_check = now - datetime.timedelta(minutes=1)
             was_day = beginning_of_day < last_check < end_of_day
