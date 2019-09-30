@@ -6,15 +6,14 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 mock = "*"
+pytest-env = "*"
 
 [packages]
 gpiozero = "*"
-picamera = "*"
 python-telegram-bot = "*"
 "RPi.GPIO" = "*"
 pycparser = "*"
 astral = "*"
-peewee = "*"
 cryptography = "*"
 tornado = "*"
 requests = "*"

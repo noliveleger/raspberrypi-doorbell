@@ -19,10 +19,9 @@ last_pressed = datetime.now()
 
 def button_pressed():
     global last_pressed
-    logger.info('Button is pressed...')
+    logger.info('Button has been pressed...')
     delta = datetime.now() - last_pressed
     if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
-        logger.debug('Button has been pressed')
         bell = Bell()
         bell.start()
         message_handler = Telegram()

@@ -10,6 +10,16 @@ from gpiozero import Motor
 from helpers.config import config, logger
 
 
+class IRCutOffMotor(Motor):
+
+    def __init__(self, forward, backward, enable):
+        super().__init__(forward=forward, backward=backward, enable=enable, pwm=False, pin_factory=None)
+
+    def stop(self):
+        super().stop()
+        self.enable_device.off()
+
+
 class IRCutOff(Thread):
 
     DAY = 1
@@ -22,6 +32,7 @@ class IRCutOff(Thread):
         """
         super().__init__()
         self.__force = force
+        self.__mode = None
 
     def run(self):
         try:
@@ -59,16 +70,21 @@ class IRCutOff(Thread):
         return
 
     def toggle(self, mode):
-        ir_filter = Motor(forward=config.get('IR_CUTOFF_FORWARD_PIN'),
-                          backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
-                          enable=config.get('IR_CUTOFF_ENABLER_PIN'),
-                          pwm=False)
+        ir_filter = IRCutOffMotor(forward=config.get('IR_CUTOFF_FORWARD_PIN'),
+                                  backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
+                                  enable=config.get('IR_CUTOFF_ENABLER_PIN'))
         if mode == self.DAY:
             logger.debug('Day mode: Turn IR cut-off filter ON.')
             ir_filter.backward()
+            self.__mode = self.DAY
         else:
             logger.debug('Night mode: Turn IR cut-off filter OFF.')
             ir_filter.forward()
+            self.__mode = self.NIGHT
+
+        if config.get('TESTING'):
+            return ir_filter
+
         sleep(0.5)
         ir_filter.stop()
         ir_filter.close()

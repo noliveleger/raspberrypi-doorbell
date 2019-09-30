@@ -36,3 +36,8 @@ BACK_DOORBELL_KEY=aaaaaaa11111
 # MotionEye
 #USE_MOTION=False
 #MOTION_EYE_SNAPSHOT_URL=http://1.1.1.1:8765/picture/1/current/
+
+TESTING=False
+
+[test]
+TESTING=True

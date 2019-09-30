@@ -8,6 +8,8 @@ from helpers.logger import Logger
 
 class Config:
 
+    DEFAULT_ENV = 'default'
+
     def __init__(self):
         self.__config = configparser.ConfigParser()
         filename = os.path.realpath(os.path.normpath(os.path.join(
@@ -16,14 +18,17 @@ class Config:
             'config.ini'))
         )
         self.__config.read(filename)
-        self.__environment = os.getenv('PYTHON_ENV', 'default')
+        self.__environment = os.getenv('PYTHON_ENV', Config.DEFAULT_ENV)
+
         if self.__environment not in self.__config:
             raise Exception('Environment not found')
 
     def get(self, value, default=None):
-        print('VALUE: {}'.format(value))
-        config_value = self.__config.get(self.__environment, value, fallback=default)
-        print('VALUE SET: {}'.format(value))
+        env = self.__environment
+        if not self.__config.has_option(env, value):
+            env = Config.DEFAULT_ENV
+
+        config_value = self.__config.get(env, value, fallback=default)
         if config_value is None:
             return config_value
 
@@ -33,6 +38,14 @@ class Config:
             config_value = False
 
         return config_value
+
+    @property
+    def env(self):
+        return self.__environment
+
+    @property
+    def all(self):
+        self.__config.items(self.__environment)
 
 
 config = Config()
