@@ -144,3 +144,10 @@ TO-DO
 ## Amazon Dash Button
 Thanks to [Amazon Dash service](https://github.com/Nekmo/amazon-dash ""). 
 It triggers a signal to the daemon which make the bell rings twice (instead once at front-door)
+
+
+## Motion
+```
+pi@pi:~ $ sudo apt-get update
+pi@pi:~ $ sudo apt-get install autotools-dev libltdl-dev libtool autoconf autopoint
+```

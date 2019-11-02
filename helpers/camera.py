@@ -52,7 +52,7 @@ class Camera(Thread):
             message_handler.run()
 
             if config.get('USE_MOTION') is not True:
-                os.remove(self.temp_path)
+                os.remove(temp_path)
 
         except Exception as e:
             logger.error('Camera Helper: {}'.format(str(e)))

@@ -46,16 +46,16 @@ class IRCutOff(Thread):
 
             timezone = pytz.timezone(city.timezone)
             now = datetime.datetime.now(tz=timezone)
-            # logger.debug('Dawn:    %s' % str(sun['dawn']))
-            # logger.debug('Sunrise: %s' % str(sun['sunrise']))
-            # logger.debug('Sunset:  %s' % str(sun['sunset']))
-            # logger.debug('Dusk:    %s' % str(sun['dusk']))
+            logger.debug('Dawn:    %s' % str(sun['dawn']))
+            logger.debug('Sunrise: %s' % str(sun['sunrise']))
+            logger.debug('Sunset:  %s' % str(sun['sunset']))
+            logger.debug('Dusk:    %s' % str(sun['dusk']))
             beginning_of_day = sun['sunrise'] + datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
             end_of_day = sun['sunset'] - datetime.timedelta(minutes=int(config.get('IR_CUTOFF_OFFSET')))
 
             last_check = now - datetime.timedelta(minutes=1)
-            was_day = beginning_of_day < last_check < end_of_day
-            day = beginning_of_day < now < end_of_day
+            was_day = beginning_of_day <= last_check < end_of_day
+            day = beginning_of_day <= now < end_of_day
 
             if was_day != day or self.__force:
                 mode = self.DAY if day else self.NIGHT
@@ -74,11 +74,11 @@ class IRCutOff(Thread):
                                   backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
                                   enable=config.get('IR_CUTOFF_ENABLER_PIN'))
         if mode == self.DAY:
-            logger.debug('Day mode: Turn IR cut-off filter ON.')
+            logger.info('Day mode: Turn IR cut-off filter ON.')
             ir_filter.backward()
             self.__mode = self.DAY
         else:
-            logger.debug('Night mode: Turn IR cut-off filter OFF.')
+            logger.info('Night mode: Turn IR cut-off filter OFF.')
             ir_filter.forward()
             self.__mode = self.NIGHT
 
