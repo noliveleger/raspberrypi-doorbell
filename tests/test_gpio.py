@@ -1,28 +1,11 @@
 # -*- code utf-8 -*-
-# import sys
-# import pytest
-# import warnings
-# from time import sleep
-# from threading import Event
-# from functools import partial
-#
-# import mock
-#
-# from gpiozero.pins.mock import MockChargingPin, MockTriggerPin
-# from gpiozero.threads import GPIOThread
-#
-# from gpiozero import LED, Button
-
 import time
 
-from mock import patch, mock_open, MagicMock
+from mock import patch
 
-# from helpers.bell import Bell
-# from helpers.camera import Camera
 from helpers.config import config
 from helpers.ircut import IRCutOff
-# from helpers.listener import BackDoorBellListener, BackDoorBellEmitter
-# from helpers.telegram import Telegram
+from helpers.sundial import Sundial
 
 
 class DummyThread:
@@ -70,7 +53,7 @@ def test_ir_cut_off_day_mode(mock_factory):
     enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
 
     ir_cut_off = IRCutOff()
-    ir_filter = ir_cut_off.toggle(IRCutOff.DAY)
+    ir_filter = ir_cut_off.toggle(Sundial.DAY)
     assert not forward_pin.state
     assert backward_pin.state
     assert enabler_pin.state
@@ -89,7 +72,7 @@ def test_ir_cut_off_night_mode(mock_factory):
     enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
 
     ir_cut_off = IRCutOff()
-    ir_filter = ir_cut_off.toggle(IRCutOff.NIGHT)
+    ir_filter = ir_cut_off.toggle(Sundial.NIGHT)
     assert forward_pin.state
     assert not backward_pin.state
     assert enabler_pin.state
