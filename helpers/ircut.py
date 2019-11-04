@@ -35,7 +35,7 @@ class IRCutOff(Thread):
 
             sundial = Sundial()
 
-            was_day = sundial.is_day(datetime.timedelta(minutes=1))
+            was_day = sundial.is_day(datetime.timedelta(seconds=int(config.get('DAY_LIGHT_INTERVAL_CHECK', 60))))
             day = sundial.is_day()
 
             if was_day != day or self.__force:
@@ -51,9 +51,9 @@ class IRCutOff(Thread):
         return
 
     def toggle(self, mode):
-        ir_filter = IRCutOffMotor(forward=config.get('IR_CUTOFF_FORWARD_PIN'),
-                                  backward=config.get('IR_CUTOFF_BACKWARD_PIN'),
-                                  enable=config.get('IR_CUTOFF_ENABLER_PIN'))
+        ir_filter = IRCutOffMotor(forward=config.get('IR_CUTOFF_FORWARD_GPIO_BCM'),
+                                  backward=config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'),
+                                  enable=config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
         if mode == Sundial.DAY:
             logger.info('Day mode: Turn IR cut-off filter ON.')
             ir_filter.backward()

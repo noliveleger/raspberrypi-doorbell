@@ -20,7 +20,7 @@ class Bell(Thread):
     def run(self):
         try:
             logger.debug('Ring bell, ring bell...')
-            bz = Buzzer(config.get('BELL_GPIO'))
+            bz = Buzzer(config.get('BELL_GPIO_BCM'))
             for i in range(0, self.__times):
                 bz.on()
                 sleep(0.4)

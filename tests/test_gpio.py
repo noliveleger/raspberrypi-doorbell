@@ -48,9 +48,9 @@ def test_toggle_button_state(mock_factory):
 
 def test_ir_cut_off_day_mode(mock_factory):
 
-    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_PIN'))
-    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_PIN'))
-    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
+    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_GPIO_BCM'))
+    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'))
+    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
 
     ir_cut_off = IRCutOff()
     ir_filter = ir_cut_off.toggle(Sundial.DAY)
@@ -67,9 +67,9 @@ def test_ir_cut_off_day_mode(mock_factory):
 
 
 def test_ir_cut_off_night_mode(mock_factory):
-    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_PIN'))
-    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_PIN'))
-    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
+    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_GPIO_BCM'))
+    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'))
+    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
 
     ir_cut_off = IRCutOff()
     ir_filter = ir_cut_off.toggle(Sundial.NIGHT)

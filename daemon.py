@@ -12,8 +12,8 @@ from helpers.listener import BackDoorBellListener, BackDoorBellEmitter
 from helpers.telegram import Telegram
 
 
-led = LED(config.get('LED_GPIO'))
-button = Button(config.get('BUTTON_GPIO'))
+led = LED(config.get('LED_GPIO_BCM'))
+button = Button(config.get('BUTTON_GPIO_BCM'))
 last_pressed = datetime.now()
 
 
