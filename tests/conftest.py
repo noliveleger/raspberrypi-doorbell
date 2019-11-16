@@ -1,5 +1,5 @@
 # -*- code utf-8 -*-
-# simplifiez version of gpiozero conftest.py
+# Simplified version of gpiozero conftest.py
 
 import pytest
 

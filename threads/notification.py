@@ -9,11 +9,12 @@ from helpers.config import config, logger
 bot = telegram.Bot(token=config.get('TELEGRAM_TOKEN'))
 
 
-class Telegram(Thread):
-
+class Notification(Thread):
+    """
+    Sends notification through Telegram
+    """
     def __init__(self, picture=None, front_door=True):
         """
-
         :param picture (BufferedReader)
         :param front_door (bool)
         """
@@ -24,8 +25,8 @@ class Telegram(Thread):
     def run(self):
         now = datetime.datetime.now().replace(microsecond=0).isoformat()
         if self.__picture is None:
-            message = config.get('TELEGRAM_FRONT_DOOR_MESSAGE') if self.__front_door \
-                else config.get('TELEGRAM_BACK_DOOR_MESSAGE')
+            message = config.get('NOTIFICATION_FRONT_DOOR_MESSAGE') if self.__front_door \
+                else config.get('NOTIFICATION_BACK_DOOR_MESSAGE')
 
             bot.send_message(chat_id=config.get('TELEGRAM_CHAT_ID'),
                              text='[{}] - {}'.format(now, message))

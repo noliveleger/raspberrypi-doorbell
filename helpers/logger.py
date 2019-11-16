@@ -6,7 +6,8 @@ class Logger:
 
     @staticmethod
     def get_logger(level_str):
-        logging.basicConfig(format='[%(asctime)s] - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        logging.basicConfig(format='[%(asctime)s] - %(levelname)s - %(message)s',
+                            datefmt='%Y-%m-%d %H:%M:%S')
         logger = logging.getLogger()
         if level_str == 'DEBUG':
             level = logging.DEBUG
