@@ -8,7 +8,7 @@ The idea is pretty simple. When the button is pressed, a notification is sent to
 
 **Hardware:**
 
-- RaspberryPi (I use the 3B+ model)
+- RaspberryPi (I use the 3B+ model on Raspbian Stretch)
 - Camera
 - [Electronic components](#) to connect existing doorbell
 
@@ -23,15 +23,7 @@ After many tries/errors, I decided to use a [USB Camera](http://www.webcamerausb
 - The USB cable is easier to bend than the ribbon of the RPi Camera
 - You can find USB Cameras with microphone on-board. Easier to fit in the doorbell enclosure than an extra [USB microphone](https://www.adafruit.com/product/3367)
 
-The USB Camera I bought has some cons:
-
-- Less controls with `uv4l` than RPi Camera
-- Less stable. It often crashes when streaming
-- No control on IR Cut-Off filter. The light sensor is not enough sensible
-- Picture becomes B&W after few hours IR Cut-Off is off
-- Company support is awful
-
-I have eventually found some solutions to address those issues. [See below](#usb-camera-issues).
+However, I faced some issues [See below](#usb-camera-issues).
 
 I also decided to use a [3.5 jack speaker](https://static.bhphoto.com/images/images1000x1000/1394551256_1031266.jpg) instead of USB speakers. I could not make the 2-ways communication work with the [USB speakers I have](https://www.adafruit.com/product/3369).
 
@@ -53,9 +45,24 @@ pi@pi:~/doorbell $ pipenv install
 
 ``` 
 
+#### UV4L:
+
+This project relies on `uv4l` project to establish two-ways audio communication with webrtc.
+
+Please follow, https://www.linux-projects.org/uv4l/installation/
+
+If you use an USB camera, please read [issues](todo-link "") section below
+
+TO-DO: 
+
+- Use NGINX and Flask App to expose a mobile web app.  
+- Complete documentation
+
+
+
 #### Get Telegram Token and Chat room info
 
-TO-DO
+TO-DO Completed documenation
 
 #### Create `DoorBell` service with `systemctl`
 From this [tutorial](https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6 "")
@@ -80,74 +87,96 @@ WantedBy=multi-user.target
 ```
     
 
-## USB Camera issues
+## Issues
+
+- Almost no image controls with `uv4l-uvc` driver.
+
+> Solved by [using `uvcvideo` driver](#)
+
+- It often crashed when streaming with `uv4l-uvc`. I needed to power recycle USB port or restart driver. 
+
+> Solved by using [using `uvcvideo` driver](#)
+
+- Picture became B&W after few hours IR Cut-Off was off. I needed to power recycle USB port or restart driver.
+
+> Solved by using [using `uvcvideo` driver](#)
+
+- USB Camera with night vision does not return to day mode
+
+> Solved by using a [home-made circuit controlled by GPIO](#)
+
+- The light sensor is not enough sensible and cannot be trigger manually
+
+
+
+#### Using `uvcvideo` driver
+
+- Remove `uvcvideo` from `modprobe` blacklist.  
+
+  Comment out `blacklist uvcvideo` in `/etc/modprobe.d/uvcvideo-blacklist.conf`
+- Tell `uv4l-uvc` to use external driver (optional if you do not want to use the two-ways communication)
+    1. Edit `/etc/init.d/uv4l_uvc`, replace `driver=uvc` with `--external-driver=yes`  
+    **Before:**
+    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`
+    **After:**
+    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`
+    2. Edit `/etc/uv4l/uv4l-uvc.conf`, replace  
+    
+    ```
+    driver = uvc  
+    video_nr = 0
+    ```
+    with
+    
+    ```
+    # driver = uvc  
+    # video_nr = 0
+    external-driver = yes
+    device-name = video0
+    ```
+
+#### Control IR Cut-off filter with GPIO
+
+I decided to by-pass the control of the IR Cut-Off by using this circuit
 
 ![IR Cut-Off diagram](./docs/ir-cut-off.svg)
 
-## Power Cycle USB Camera
+The IR Cut-off is switched on/off at sunset/sunrise hours. It can set in [config.ini](https://bitbucket.org/oleger/doorbell/src/93265682e4dc60b9be271103960558cad6c4f83a/config.ini.sample#lines-30:35)
 
-USB Camera with night vision does not return to day mode.
-Workaround is to power cycle USB port thanks to this utility: [uhubctl](https://github.com/mvp/uhubctl "")
+#### Power Cycle USB Camera
+
+One of the workaround is to power cycle USB port to avoid rebooting the RaspberryPI.
+Thanks to this utility: [uhubctl](https://github.com/mvp/uhubctl ""), it is possible.
 
 Usage:
+
 ```
 $> sudo uhubctl -a <action> -p <port_number> -l <hub_location>
 ```
 
 On RaspberryPI 3B+ and USB Port 3
-```
-sudo uhubctl -a off -p 3 -l 1-1
-```
-
-`uv4l_uvc` driver needs to be restart too.
-```
-sudo systemctl restart uv4l_uvc@05a3:9422.service
-```
-
-
-#### UV4L:
-
-This project relies on `uv4l` from streaming and webrtc.
-
-Please follow, https://www.linux-projects.org/uv4l/installation/
-
-
-#### v4l2rtspserver:
-
-https://github.com/mpromonet/v4l2rtspserver
 
 ```
-[Unit]
-Description=Streamer daemon
-After=network.target
-StartLimitIntervalSec=30
-
-[Service]
-WorkingDirectory=/home/pi
-Environment="PATH=/home/pi/.local/bin:/home/pi/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
-Environment="LD_PRELOAD=/usr/lib/uv4l/uv4lext/armv6l/libuv4lext.so"
-Type=simple
-Restart=on-failure
-RestartSec=1
-User=pi
-ExecStart=/usr/local/bin/v4l2rtspserver -F 30 -H 720 -W 1280 -P 8555 /dev/video0
-
-[Install]
-WantedBy=multi-user.target
+$> sudo uhubctl -a off -p 3 -l 1-1
 ```
 
+[A script](scripts/powercycle-usbcam.sh) is available to call it. Please adapt it to your settings.
 
-## Electronic Diagrams
 
-TO-DO
+
+## Electronic components
+
+TO-DO Complete documentation
 
 ## Amazon Dash Button
 Thanks to [Amazon Dash service](https://github.com/Nekmo/amazon-dash ""). 
 It triggers a signal to the daemon which make the bell rings twice (instead once at front-door)
 
+TO-DO Complete documentation
 
 ## Motion
 ```
 pi@pi:~ $ sudo apt-get update
 pi@pi:~ $ sudo apt-get install autotools-dev libltdl-dev libtool autoconf autopoint
 ```
+TO-DO Complete documentation
