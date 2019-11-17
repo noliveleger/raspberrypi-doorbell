@@ -28,6 +28,8 @@ IR_CUTOFF_ENABLER_GPIO_BCM=23
 
 # Number of seconds before button can be pressed again
 BUTTON_PRESS_THRESHOLD=5
+# Keep the led turned on during the day
+BUTTON_LED_ALWAYS_ON=False
 
 # Location of the doorbell. To calculate sunset/sunrise.
 ASTRA_CITY=Montreal

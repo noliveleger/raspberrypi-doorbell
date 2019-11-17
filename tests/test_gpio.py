@@ -18,30 +18,37 @@ class DummyThread:
 @patch('threads.chime.Chime.run', new=DummyThread.run)
 @patch('threads.camera.Camera.run', new=DummyThread.run)
 @patch('threads.notification.Notification.run', new=DummyThread.run)
-def test_toggle_button_state(mock_factory):
+def test_button(mock_factory):
 
     led_pin = mock_factory.pin(config.get('LED_GPIO_BCM'))
     button_pin = mock_factory.pin(config.get('BUTTON_GPIO_BCM'))
 
     button = Button()
 
+    button._led_always_on = True  # Force LED to be on
     checkpoint = button.last_pressed
     button_pin.drive_low()  # button is pressed
     assert not led_pin.state
+    assert led_pin.state == button.led.is_lit
     assert checkpoint == button.last_pressed  # Do not ring. Pressed too fast
     time.sleep(0.1)
     button_pin.drive_high()  # button is released
     assert led_pin.state
+    assert led_pin.state == button.led.is_lit
 
     # Wait for threshold to expire
+    button._led_always_on = False  # Force LED to be on during the day
     time.sleep(int(config.get('BUTTON_PRESS_THRESHOLD', 1)))
-    button_pin.drive_low()
+    button_pin.drive_low()  # button is pressed
+    should_be_lit = not Sundial().is_day()
+    assert led_pin.state is not should_be_lit
     time.sleep(0.1)
     assert checkpoint != button.last_pressed
-    button_pin.drive_high()
+    button_pin.drive_high()  # button is released
+    assert led_pin.state is should_be_lit
 
 
-def test_ir_cut_off_toggle(mock_factory):
+def test_ir_cut_off(mock_factory):
 
     forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_GPIO_BCM'))
     backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'))
