@@ -20,6 +20,7 @@ class IRCutOff(metaclass=Singleton):
 
     def __del__(self):
         if self.__ir_cutoff_motor:
+            logger.debug("IR Cut-Off's GPIO are closed")
             self.__ir_cutoff_motor.close()
 
     def toggle(self, mode):
