@@ -4,8 +4,9 @@ import time
 from mock import patch
 
 from helpers.config import config
-from helpers.ircut import IRCutOff
+from helpers.button import Button
 from helpers.sundial import Sundial
+from helpers.ir_cutoff import IRCutOff
 
 
 class DummyThread:
@@ -14,72 +15,61 @@ class DummyThread:
         return
 
 
-@patch('helpers.bell.Bell.run', new=DummyThread.run)
-@patch('helpers.camera.Camera.run', new=DummyThread.run)
-@patch('helpers.telegram.Telegram.run', new=DummyThread.run)
-def test_toggle_button_state(mock_factory):
+@patch('threads.chime.Chime.run', new=DummyThread.run)
+@patch('threads.camera.Camera.run', new=DummyThread.run)
+@patch('threads.notification.Notification.run', new=DummyThread.run)
+def test_button(mock_factory):
 
-    import daemon  # Has to be imported here, to mock led & button
+    led_pin = mock_factory.pin(config.get('LED_GPIO_BCM'))
+    button_pin = mock_factory.pin(config.get('BUTTON_GPIO_BCM'))
 
-    led_pin = mock_factory.pin(daemon.led.pin.number)
-    button_pin = mock_factory.pin(daemon.button.pin.number)
-    daemon.led.on()
-    checkpoint = daemon.last_pressed
-    daemon.button.when_pressed = daemon.button_pressed
-    daemon.button.when_released = daemon.button_released
+    button = Button()
 
+    button._led_always_on = True  # Force LED to be on
+    checkpoint = button.last_pressed
     button_pin.drive_low()  # button is pressed
     assert not led_pin.state
-    assert checkpoint == daemon.last_pressed  # Do not ring. Pressed too fast
+    assert led_pin.state == button.led.is_lit
+    assert checkpoint == button.last_pressed  # Do not ring. Pressed too fast
     time.sleep(0.1)
     button_pin.drive_high()  # button is released
     assert led_pin.state
+    assert led_pin.state == button.led.is_lit
 
     # Wait for threshold to expire
+    button._led_always_on = False  # Force LED to be on during the day
     time.sleep(int(config.get('BUTTON_PRESS_THRESHOLD', 1)))
-    button_pin.drive_low()
+    button_pin.drive_low()  # button is pressed
+    should_be_lit = not Sundial().is_day()
+    assert led_pin.state is not should_be_lit
     time.sleep(0.1)
-    assert checkpoint != daemon.last_pressed
-    button_pin.drive_high()
-
-    daemon.led.close()
-    daemon.button.close()
+    assert checkpoint != button.last_pressed
+    button_pin.drive_high()  # button is released
+    assert led_pin.state is should_be_lit
 
 
-def test_ir_cut_off_day_mode(mock_factory):
+def test_ir_cut_off(mock_factory):
 
-    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_PIN'))
-    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_PIN'))
-    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
+    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_GPIO_BCM'))
+    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'))
+    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
 
     ir_cut_off = IRCutOff()
-    ir_filter = ir_cut_off.toggle(Sundial.DAY)
+    # Toggle in DAY mode
+    ir_cut_off._toggle(Sundial.DAY)
     assert not forward_pin.state
     assert backward_pin.state
     assert enabler_pin.state
-    time.sleep(0.1)
-    ir_filter.stop()
+
+    # Idle
+    ir_cut_off.stop()
     assert not forward_pin.state
     assert not backward_pin.state
     assert not enabler_pin.state
-    time.sleep(0.1)
-    ir_filter.close()
 
-
-def test_ir_cut_off_night_mode(mock_factory):
-    forward_pin = mock_factory.pin(config.get('IR_CUTOFF_FORWARD_PIN'))
-    backward_pin = mock_factory.pin(config.get('IR_CUTOFF_BACKWARD_PIN'))
-    enabler_pin = mock_factory.pin(config.get('IR_CUTOFF_ENABLER_PIN'))
-
-    ir_cut_off = IRCutOff()
-    ir_filter = ir_cut_off.toggle(Sundial.NIGHT)
+    # Toggle Night mode
+    ir_cut_off._toggle(Sundial.NIGHT)
     assert forward_pin.state
     assert not backward_pin.state
     assert enabler_pin.state
-    time.sleep(0.1)
-    ir_filter.stop()
-    assert not forward_pin.state
-    assert not backward_pin.state
-    assert not enabler_pin.state
-    time.sleep(0.1)
-    ir_filter.close()
+    ir_cut_off.stop()

@@ -9,10 +9,16 @@ from threading import Thread
 import requests
 
 from helpers.config import config, logger
-from helpers.telegram import Telegram
+from threads.notification import Notification
 
 
 class Camera(Thread):
+    """
+    Takes a picture. If `motion` is used, it fetches a picture from API.
+    Otherwise, it uses OS utilities (e.g. fswebcam, raspistill) to take the picture.
+    It only supports `fswebcam` as of today (Nov 16, 2019)
+    @ToDo Support raspistill
+    """
 
     def __init__(self):
         super().__init__()
@@ -48,8 +54,8 @@ class Camera(Thread):
                 buffered_reader = open(temp_path, 'rb')
                 logger.debug('Image {} captured...'.format(temp_path))
 
-            message_handler = Telegram(buffered_reader)
-            message_handler.run()
+            notification = Notification(buffered_reader)
+            notification.run()
 
             if config.get('USE_MOTION') is not True:
                 os.remove(temp_path)
