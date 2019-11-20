@@ -1,10 +1,10 @@
 # -*- code utf-8 -*-
 from time import sleep
 
-from gpio.ir_cutoff_motor import IRCutOffMotor
-from helpers import Singleton
-from helpers.config import config, logger
-from helpers.sundial import Sundial
+from app.gpio.ir_cutoff_motor import IRCutOffMotor
+from app.helpers import Singleton
+from app.config import config, logger
+from app.helpers.sundial import Sundial
 
 
 class IRCutOff(metaclass=Singleton):

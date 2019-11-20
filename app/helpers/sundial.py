@@ -4,8 +4,8 @@ from datetime import date, datetime, timedelta
 
 from astral import Astral
 
-from helpers.config import config, logger
-from helpers import Singleton
+from app.config import config, logger
+from app.helpers import Singleton
 
 
 class Sundial(metaclass=Singleton):

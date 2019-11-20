@@ -7,16 +7,17 @@ verify_ssl = true
 pytest = "*"
 mock = "*"
 pytest-env = "*"
+pytest-dotenv = "*"
 
 [packages]
 gpiozero = "*"
 python-telegram-bot = "*"
 "RPi.GPIO" = "*"
-pycparser = "*"
 astral = "*"
-cryptography = "*"
-tornado = "*"
 requests = "*"
+configparser = "*"
+flask = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.5"

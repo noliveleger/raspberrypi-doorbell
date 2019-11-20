@@ -3,10 +3,10 @@ import time
 
 from mock import patch
 
-from helpers.config import config
-from helpers.button import Button
-from helpers.sundial import Sundial
-from helpers.ir_cutoff import IRCutOff
+from app.config import config
+from app.helpers.button import Button
+from app.helpers.sundial import Sundial
+from app.helpers.ir_cutoff import IRCutOff
 
 
 class DummyThread:
@@ -15,9 +15,9 @@ class DummyThread:
         return
 
 
-@patch('threads.chime.Chime.run', new=DummyThread.run)
-@patch('threads.camera.Camera.run', new=DummyThread.run)
-@patch('threads.notification.Notification.run', new=DummyThread.run)
+@patch('app.threads.chime.Chime.run', new=DummyThread.run)
+@patch('app.threads.camera.Camera.run', new=DummyThread.run)
+@patch('app.threads.notification.Notification.run', new=DummyThread.run)
 def test_button(mock_factory):
 
     led_pin = mock_factory.pin(config.get('LED_GPIO_BCM'))

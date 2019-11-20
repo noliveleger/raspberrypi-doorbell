@@ -8,8 +8,8 @@ from threading import Thread
 
 import requests
 
-from helpers.config import config, logger
-from threads.notification import Notification
+from app.config import config, logger
+from app.threads.notification import Notification
 
 
 class Camera(Thread):

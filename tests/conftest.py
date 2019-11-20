@@ -1,10 +1,16 @@
 # -*- code utf-8 -*-
 # Simplified version of gpiozero conftest.py
 
+import os
 import pytest
 
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPWMPin
+
+
+def pytest_configure(config):
+    os.environ['FLASK_ENV'] = 'testing'
+    return config
 
 
 @pytest.yield_fixture()

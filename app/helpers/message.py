@@ -3,7 +3,7 @@ import json
 import socket
 import time
 
-from helpers.config import config, logger
+from app.config import config
 
 
 class Message:

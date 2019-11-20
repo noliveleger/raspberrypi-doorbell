@@ -4,7 +4,8 @@ from threading import Thread
 
 import telegram
 
-from helpers.config import config, logger
+from app.config import config, logger
+
 
 bot = telegram.Bot(token=config.get('TELEGRAM_TOKEN'))
 

@@ -53,6 +53,8 @@ Please follow, https://www.linux-projects.org/uv4l/installation/
 
 If you use an USB camera, please read [issues](todo-link "") section below
 
+Buster and SSL: https://www.raspberrypi.org/forums/viewtopic.php?t=247305
+
 TO-DO: 
 
 - Use NGINX and Flask App to expose a mobile web app.  
@@ -115,22 +117,24 @@ WantedBy=multi-user.target
 
   Comment out `blacklist uvcvideo` in `/etc/modprobe.d/uvcvideo-blacklist.conf`
 - Tell `uv4l-uvc` to use external driver (optional if you do not want to use the two-ways communication)
-    1. Edit `/etc/init.d/uv4l_uvc`, replace `driver=uvc` with `--external-driver=yes`  
-    **Before:**
-    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`
-    **After:**
-    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`
+    1. Edit `/etc/init.d/uv4l_uvc`, replace `driver=uvc` with `--external-driver=yes`    
+    **Before:**  
+    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`  
+    **After:**  
+    `$UV4L -k --sched-rr --mem-lock --config-file=$CONFIGFILE --external-driver=yes --driver-config-file=$CONFIGFILE --server-option=--editable-config-file=$CONFIGFILE --device-id $2`  
     2. Edit `/etc/uv4l/uv4l-uvc.conf`, replace  
     
     ```
     driver = uvc  
     video_nr = 0
+    auto-video_nr = yes
     ```
     with
     
     ```
     # driver = uvc  
     # video_nr = 0
+    # auto-video_nr = yes
     external-driver = yes
     device-name = video0
     ```

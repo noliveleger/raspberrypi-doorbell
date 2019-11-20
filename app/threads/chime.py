@@ -4,7 +4,7 @@ from time import sleep
 
 from gpiozero import Buzzer
 
-from helpers.config import config, logger
+from app.config import config, logger
 
 
 class Chime(Thread):
