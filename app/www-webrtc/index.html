@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -33,8 +32,9 @@
                 });
             }
 
-            var signalling_server_hostname = location.hostname || "192.168.5.40";
+            var signalling_server_hostname = location.hostname || "192.168.5.79";
             var signalling_server_address = signalling_server_hostname + ':' + (location.port || (location.protocol === 'https:' ? 443 : 80));
+
             var isFirefox = typeof InstallTrigger !== 'undefined';// Firefox 1.0+
 
             addEventListener("DOMContentLoaded", function () {
@@ -64,7 +64,7 @@
             var audio_video_stream;
             var recorder = null;
             var recordedBlobs;
-            var pcConfig = {/*sdpSemantics : "plan-b"*,*/ "iceServers": [
+            var pcConfig = {"iceServers": [
                     {"urls": ["stun:stun.l.google.com:19302", "stun:" + signalling_server_hostname + ":3478"]}
                 ]};
             var pcOptions = {
@@ -89,7 +89,7 @@
             RTCPeerConnection = window.RTCPeerConnection || /*window.mozRTCPeerConnection ||*/ window.webkitRTCPeerConnection;
             RTCSessionDescription = /*window.mozRTCSessionDescription ||*/ window.RTCSessionDescription;
             RTCIceCandidate = /*window.mozRTCIceCandidate ||*/ window.RTCIceCandidate;
-            navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+            navigator.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
             var URL = window.URL || window.webkitURL;
 
             function createPeerConnection() {
@@ -109,8 +109,10 @@
                     pc = new RTCPeerConnection(pcConfig_, pcOptions);
                     pc.onicecandidate = onIceCandidate;
                     if ('ontrack' in pc) {
+                        console.log('onTrack');
                         pc.ontrack = onTrack;
                     } else {
+                        console.log('onRemoteStreamADded');
                         pc.onaddstream = onRemoteStreamAdded; // deprecated
                     }
                     pc.onremovestream = onRemoteStreamRemoved;
@@ -188,7 +190,7 @@
                 console.log("Remote track!");
                 var remoteVideoElement = document.getElementById('remote-video');
                 remoteVideoElement.srcObject = event.streams[0];
-                //remoteVideoElement.play();
+                // remoteVideoElement.play();
             }
 
             function onRemoteStreamRemoved(event) {
@@ -205,14 +207,22 @@
                     var server = document.getElementById("signalling_server").value.toLowerCase();
 
                     var protocol = location.protocol === "https:" ? "wss:" : "ws:";
-                    ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
+                    console.log('SERVER:' + server);
+                    //ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
+                    ws = new WebSocket(protocol + '//' + server + '/');
 
                     function call(stream) {
                         iceCandidates = [];
                         remoteDesc = false;
+                        console.log('avant createPeerConnection');
                         createPeerConnection();
+                        console.log('after createPeerConnection');
+                        console.log('stream');
+                        console.log(stream);
                         if (stream) {
-                            pc.addStream(stream);
+                            stream.getTracks().forEach(function(track) {
+                                pc.addTrack(track, stream);
+                            });
                         }
                         var request = {
                             what: "call",
@@ -238,49 +248,22 @@
                         var cast_application = document.getElementById("cast_application").checked;
                         var echo_cancellation = document.getElementById("echo_cancellation").checked;
                         var localConstraints = {};
-                        if (cast_mic) {
-                            if (echo_cancellation)
-                                localConstraints['audio'] = isFirefox ? {echoCancellation: true} : {optional: [{echoCancellation: true}]};
-                            else
-                                localConstraints['audio'] = isFirefox ? {echoCancellation: false} : {optional: [{echoCancellation: false}]};
-                        } else if (cast_tab) {
-                            localConstraints['audio'] = {mediaSource: "audioCapture"};
-                        } else {
-                            localConstraints['audio'] = false;
-                        }
-                        if (cast_camera) {
-                            localConstraints['video'] = true;
-                        } else if (cast_screen) {
-                            if (isFirefox) {
-                                localConstraints['video'] = {frameRate: {ideal: 30, max: 30},
-                                    //width: {min: 640, max: 960},
-                                    //height: {min: 480, max: 720},
-                                    mozMediaSource: "screen",
-                                    mediaSource: "screen"};
-                            } else {
-                                // chrome://flags#enable-usermedia-screen-capturing
-                                document.getElementById("cast_mic").checked = false;
-                                localConstraints['audio'] = false; // mandatory for chrome
-                                localConstraints['video'] = {'mandatory': {'chromeMediaSource':'screen'}};
-                            }
-                        } else if (cast_window)
-                            localConstraints['video'] = {frameRate: {ideal: 30, max: 30},
-                                //width: {min: 640, max: 960},
-                                //height: {min: 480, max: 720},
-                                mozMediaSource: "window",
-                                mediaSource: "window"};
-                        else if (cast_application)
-                            localConstraints['video'] = {frameRate: {ideal: 30, max: 30},
-                                //width: {min: 640, max: 960},
-                                //height:  {min: 480, max: 720},
-                                mozMediaSource: "application",
-                                mediaSource: "application"};
-                        else
-                            localConstraints['video'] = false;
 
                         var localVideoElement = document.getElementById('local-video');
-                        if (localConstraints.audio || localConstraints.video) {
-                            if (navigator.getUserMedia) {
+
+                        navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function(stream) {
+                            console.log('Received local stream');
+                            audio_video_stream = stream;
+                            call(stream);
+                            localVideoElement.muted = true;
+                            localVideoElement.srcObject = stream;
+                            localVideoElement.play();
+                        }).catch(e => {
+                            stop();
+                            alert(`getUserMedia() error: ${e.name}`);
+                        });
+                                // localStream = stream;
+                                /*console.log(localConstraints);
                                 navigator.getUserMedia(localConstraints, function (stream) {
                                     audio_video_stream = stream;
                                     call(stream);
@@ -291,13 +274,13 @@
                                     stop();
                                     alert("An error has occurred. Check media device, permissions on media and origin.");
                                     console.error(error);
-                                });
-                            } else {
+                                });*/
+                        /*    } else {
                                 console.log("getUserMedia not supported");
                             }
                         } else {
                             call();
-                        }
+                        }*/
                     };
 
                     ws.onmessage = function (evt) {
@@ -306,35 +289,36 @@
                             var what = msg.what;
                             var data = msg.data;
                         }
-                        //console.log("message=" + msg);
-                        console.log("message =" + what);
+                        console.log("message:");
+                        console.log(msg);
+                        console.log("message: " + what);
 
                         switch (what) {
                             case "offer":
-                                pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
-                                        function onRemoteSdpSuccess() {
+
+                                pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)))
+                                    .then(() => {
                                             remoteDesc = true;
                                             addIceCandidates();
                                             console.log('onRemoteSdpSucces()');
-                                            pc.createAnswer(function (sessionDescription) {
-                                                pc.setLocalDescription(sessionDescription);
-                                                var request = {
+                                            pc.createAnswer(mediaConstraints).then(sessionDescription => {
+                                                pc.setLocalDescription(sessionDescription).then();
+                                                let request = {
                                                     what: "answer",
                                                     data: JSON.stringify(sessionDescription)
                                                 };
                                                 ws.send(JSON.stringify(request));
                                                 console.log(request);
 
-                                            }, function (error) {
+                                            }).catch(error => {
                                                 alert("Failed to createAnswer: " + error);
-
-                                            }, mediaConstraints);
-                                        },
-                                        function onRemoteSdpError(event) {
+                                            });
+                                    }).catch(event => {
                                             alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
                                             stop();
-                                        }
-                                );
+                                    });
+
+
 
                                 /*
                                  * No longer needed, it's implicit in "call"
@@ -1244,8 +1228,8 @@
                     </select>
                 </fieldset>
             </details>
-            <button id="start" style="background-color: green; color: white" onclick="start();">Call!</button>
-            <button disabled id="stop" style="background-color: red; color: white" onclick="stop();">Hang up</button>
+            <button id="start" style="background-color: green; color: white; height: 150px; width: 300px; font-size: 24px;" onclick="alert('click'); start();">Call!</button>
+            <button disabled id="stop" style="background-color: red; color: white; height: 150px; width: 300px; font-size: 24px;" onclick="stop();">Hang up</button>
         </div><br>
         <a target="_top" href="/">home</a>&nbsp;<a href="/panel" target="_blank" title="change the image settings on-the-fly">control panel</a>
     </body>
