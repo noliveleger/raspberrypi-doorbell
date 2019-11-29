@@ -184,3 +184,13 @@ pi@pi:~ $ sudo apt-get update
 pi@pi:~ $ sudo apt-get install autotools-dev libltdl-dev libtool autoconf autopoint
 ```
 TO-DO Complete documentation
+
+
+## DB
+
+```
+pw_migrate migrate --database sqlite:///db/app.db
+```
+TO-DO Complete documentation
+
+

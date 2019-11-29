@@ -61,6 +61,23 @@ class DefaultConfig:
 
     TESTING = False
 
+    # Flask App
+    DATABASE = {
+        'database': os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'db',
+            'app.db'),
+        'pragmas': (('journal_mode', 'wal'),
+                    ('cache_size', -1024 * 64),
+                    ('foreign_keys', 1))
+    }
+
+    AUTH_DATETIME_PADDING = 60
+
+    WEBRTC_HOST = os.getenv('WEBRTC_HOST')
+
     @property
     def env(self):
         return self.get('ENV')

@@ -1,14 +1,15 @@
 # -*- code utf-8 -*-
 import json
 import socket
+from collections import defaultdict
 from datetime import datetime
 from threading import Thread
 
+from werkzeug.utils import import_string, ImportStringError
+
 from app.config import config, logger
-from app.helpers.message import Message
-from app.threads.chime import Chime
-from app.threads.notification import Notification
-from app.threads.day_light_toggle import DayLightToggle
+from app.helpers.message.receiver_message_broker import Receiver
+from app.helpers.message.sender import Sender
 
 
 class MessageBroker(Thread):
@@ -18,7 +19,7 @@ class MessageBroker(Thread):
     def __init__(self):
         super().__init__()
         self.__stop = False
-        self.__last_pressed = None
+        self.__last_date_received = defaultdict(datetime.now)
 
     def run(self):
         host = config.get('MESSAGE_BROKER_HOST')
@@ -31,7 +32,7 @@ class MessageBroker(Thread):
                     host,
                     port
                 ))
-                self.__last_pressed = datetime.now()
+                #self.__last_date_received = datetime.now()
                 while not self.__stop:
                     conn, addr = s.accept()
                     with conn:
@@ -73,38 +74,27 @@ class MessageBroker(Thread):
             logger.error('Invalid signature {}'.format(message.get('signature')))
             return False
 
-        if message['type'] == Message.TYPE_CHIME:
-            try:
-                message_datetime = datetime.fromtimestamp(message['timestamp'])
-                delta = message_datetime - self.__last_pressed
-                if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
-                    self.__last_pressed = message_datetime
-                    if message.get('device') == config.get('BACK_DOORBELL_DEVICE_MAC'):
-                        telegram = Notification(front_door=False)
-                        telegram.start()
-                        chime = Chime(times=config.get('BACK_DOORBELL_RINGS_NUMBER'))
-                        chime.run()  # No need to run it as thread
-                else:
-                    logger.debug('Relax dude! Stop pushing the button')
-            except KeyError:
-                logger.error('Message is invalid.')
+        try:
+            class_ = 'app.helpers.message.receiver_{}.Receiver'.format(message['type'])
+            receiver = import_string(class_)()
+            if not receiver.read(message,
+                                 self.__last_date_received[message['type']]):
+                self.__stop = message.get('type') == Receiver.TYPE
                 return False
-
-        elif message['type'] == Message.TYPE_MESSAGE:
-            pass
-
-        elif message['type'] == Message.TYPE_SIGNAL:
-
-            if message['signal'] == Message.SIGNAL_STOP:
-                # Stop `DayLightToggle`'s inner thread
-                day_light_toggle = DayLightToggle()
-                day_light_toggle.stop()
-
-                # stop server and its thread. Must be the last thing to stop
-                self.__stop = True
-                logger.warning('Message broker stops listening')
-                return False
+            self.__last_date_received[message['type']] = datetime.fromtimestamp(
+                message['timestamp'])
+        except KeyError:
+            logger.error('Message is invalid. Some attributes is missing.')
+            return False
+        except ImportStringError:
+            logger.error('Message is invalid. Unknown receiver')
+            return False
 
         return True
 
+    @staticmethod
+    def stop():
+        Sender.send({
+            'action': Receiver.STOP
+        }, Receiver.TYPE)
 

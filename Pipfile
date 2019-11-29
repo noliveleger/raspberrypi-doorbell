@@ -18,6 +18,8 @@ requests = "*"
 configparser = "*"
 flask = "*"
 python-dotenv = "*"
+peewee = "*"
+peewee-migrate = "*"
 
 [requires]
 python_version = "3.5"

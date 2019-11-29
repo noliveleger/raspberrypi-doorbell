@@ -2,10 +2,10 @@
 from signal import pause
 
 from app.config import logger
-from app.helpers.message import Message
 from app.helpers.button import Button
 from app.threads.day_light_toggle import DayLightToggle
 from app.threads.message_broker import MessageBroker
+
 from .base import BaseService
 
 
@@ -32,5 +32,5 @@ class Daemon(BaseService):
             pass
 
         logger.debug('Cleaning up...')
-        Message.send_signal(Message.SIGNAL_STOP)
+        MessageBroker.stop()
         logger.info('Daemon has been stopped')
