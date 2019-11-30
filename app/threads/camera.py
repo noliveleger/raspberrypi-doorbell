@@ -32,18 +32,18 @@ class Camera(Thread):
             else:
                 _, temp_path = mkstemp()
                 command = [
-                    config.get('FSWEBCAM_BIN'),
+                    config.get('WEBCAM_BIN'),
                     '--device',
-                    config.get('FSWEBCAM_DEVICE', '/dev/video0'),
+                    config.get('WEBCAM_DEVICE', '/dev/video0'),
                     '--resolution',
-                    config.get('FSWEBCAM_RESOLUTION', '1920x1080'),
+                    config.get('WEBCAM_RESOLUTION', '1920x1080'),
                     '--no-banner',
                     '--delay',
-                    config.get('FSWEBCAM_DELAY', '2'),
+                    config.get('WEBCAM_DELAY', '2'),
                     '--rotate',
-                    config.get('FSWEBCAM_ROTATE', '180'),
+                    config.get('WEBCAM_ROTATE', '180'),
                     '--jpeg',
-                    config.get('FSWEBCAM_JPG_COMP', '80'),
+                    config.get('WEBCAM_JPG_COMP', '80'),
                     temp_path
                 ]
 

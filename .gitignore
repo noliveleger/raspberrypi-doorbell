@@ -8,3 +8,6 @@ __pycache__
 ._*
 .env
 db/
+static/.webassets-cache/
+static/css/app.min.css
+static/js/app.min.js

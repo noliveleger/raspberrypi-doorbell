@@ -5,3 +5,4 @@ from .default import DefaultConfig
 class DevelopmentConfig(DefaultConfig):
 
     LOG_LEVEL = 'DEBUG'
+

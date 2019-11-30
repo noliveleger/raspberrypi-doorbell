@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
+
 from flask import Blueprint, render_template, abort
 
 # from app.helpers.auth import authenticate
+from app.config import config
 from app.helpers.message.sender import Sender
 from app.helpers.message.receiver_motion import Receiver as MotionReceiver
 from app.helpers.message.receiver_sound import Receiver as SoundReceiver
@@ -11,7 +14,10 @@ from app.models.call import Call
 class MobileMod:
 
     def __init__(self, app):
-        blueprint = Blueprint('mobile_module', __name__, template_folder='templates')
+        blueprint = Blueprint('mobile_bp',
+                              __name__,
+                              static_folder='static',
+                              template_folder='templates')
 
         blueprint.add_url_rule('/', 'index', self.index, methods=['GET'])
         blueprint.add_url_rule('/hang_up', 'hang_up', self.hang_up, methods=['GET'])
@@ -34,7 +40,18 @@ class MobileMod:
         Call.create(status=Call.ON_CALL)
         Sender.send({'action': MotionReceiver.STOP}, MotionReceiver.TYPE)
 
-        return render_template('index.html')
+        variables = {
+            'domain_name': config.get('WEB_APP_DOMAIN_NAME'),
+            'resolution': config.get('WEBCAM_RESOLUTION'),
+            'rotate': config.get('WEBCAM_ROTATE'),
+            'webrtc_web_sockets_port': config.get('WEBRTC_WEBSOCKETS_PORT'),
+            'webrtc_endpoint': config.get('WEBRTC_ENDPOINT'),
+            'webrtc_ice_servers': json.dumps(config.get('WEBRTC_ICE_SERVERS')),
+            'webrtc_video_format': config.get('WEBRTC_VIDEO_FORMAT'),
+            'webrtc_force_hw_vcodec': 'true' if config.get('WEBRTC_FORCE_HW_VCODEC') else 'false'
+        }
+
+        return render_template('index.html', **variables)
 
     def hang_up(self):
         call = Call.get_call()

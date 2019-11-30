@@ -6,5 +6,5 @@ class ProdConfig(DefaultConfig):
 
     ENV = "prod"
 
-    FSWEBCAM_RESOLUTION = '1280x720'
-    FSWEBCAM_ROTATE = 180
+    WEBCAM_RESOLUTION = '1280x720'
+    WEBCAM_ROTATE = 180
