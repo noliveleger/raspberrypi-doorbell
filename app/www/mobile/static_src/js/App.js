@@ -4,13 +4,15 @@
 
     function App(options) {
         let call = null,
-            elements = Elements.getInstance();
+            elements = Elements.getInstance(),
+            heartbeat;
 
         let init = function() {
             if (location.protocol === 'https:') {
                 call = new Call(options);
                 bindEvents();
                 prepareVideo(options);
+                heartbeat = new Heartbeat();
             } else {
                 alert('HTTPS must be enabled!');
             }
@@ -32,13 +34,15 @@
                 fullscreenButton = elements.fullscreenButton;
 
             callButton.addEventListener('click', function() {
-                 callButton.classList.add('disabled');
-                 hangUpButton.classList.remove('disabled');
+                callButton.classList.add('disabled');
+                hangUpButton.classList.remove('disabled');
+                heartbeat.start();
                 call.pickUp();
             });
             // callButton.addEventListener('touchstart', start);
             hangUpButton.addEventListener('click', function() {
                 call.hangUp();
+                heartbeat.stop();
                 callButton.classList.remove('disabled');
                 hangUpButton.classList.add('disabled');
             });

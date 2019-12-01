@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from flask import request, abort
+from flask import request, abort, session
 from functools import wraps
 
-from app.config import config, logger
+from app.config import config
 from app.models.token import Token
 
 
@@ -27,9 +27,30 @@ class Auth:
     @staticmethod
     def execute():
 
-        request_datetime = datetime.now() - timedelta(seconds=int(
-            config.get('AUTH_DATETIME_PADDING')))
+        if config.env == 'dev':
+            return True
+        else:
+            try:
+                auth_session = session['authenticate']
+                request_datetime = auth_session['request_datetime']
+                token = auth_session['token']
+            except KeyError:
+                if request.args.get('token') is not None:
+                    request_datetime = datetime.now() - timedelta(seconds=int(
+                        config.get('AUTH_DATETIME_PADDING')))
+                    token = request.args.get('token')
 
-        query = Token.select().where(Token.token == request.args.get('token'),
-                                     Token.created_date >= request_datetime)
-        return query.exists()
+            query = Token.select().where(Token.token == token,
+                                         Token.token.is_null(False),
+                                         Token.created_date >= request_datetime)
+
+            if not query.exists():
+                # Not valid, don't go further
+                return False
+
+            session['authenticate'] = {
+                'request_datetime': request_datetime,
+                'token': token,
+                'datetime': datetime.now()
+            }
+            return True

@@ -44,10 +44,10 @@ def migrate(migrator, database, fake=False, **kwargs):
         created_date = pw.DateTimeField()
         modified_date = pw.DateTimeField()
         status = pw.IntegerField()
+        caller_id = pw.CharField(max_length=32, null=True)
 
         class Meta:
             table_name = "call"
-
 
 
 def rollback(migrator, database, fake=False, **kwargs):

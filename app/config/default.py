@@ -161,6 +161,8 @@ class DefaultConfig:
             output='css/app.min.css'
         ),
         'app_js': Bundle(
+            'mobile_bp/../static_src/js/Requests.js',
+            'mobile_bp/../static_src/js/Heartbeat.js',
             'mobile_bp/../static_src/js/Elements.js',
             'mobile_bp/../static_src/js/Call.js',
             'mobile_bp/../static_src/js/App.js',

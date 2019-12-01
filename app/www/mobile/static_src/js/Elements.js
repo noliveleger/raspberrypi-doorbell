@@ -40,7 +40,7 @@
      * @return {Elements} instance
      */
     Elements.getInstance = (function() {
-        return function(obj) {
+        return function() {
             if (!instance) return new Elements();
             else return instance;
         };
