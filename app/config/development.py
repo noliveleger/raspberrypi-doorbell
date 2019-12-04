@@ -4,5 +4,7 @@ from .default import DefaultConfig
 
 class DevelopmentConfig(DefaultConfig):
 
-    LOG_LEVEL = 'DEBUG'
+    ENV = 'dev'
 
+    LOG_LEVEL = 'DEBUG'
+    WEBCAM_RESOLUTION = '1280x720'

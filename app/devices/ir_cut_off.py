@@ -18,10 +18,23 @@ class IRCutOff(metaclass=Singleton):
             backward=config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'),
             enable=config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
 
+        self.__is_day = Sundial().is_day()
+
     def __del__(self):
         if self.__ir_cutoff_motor:
             logger.debug("IR Cut-Off's GPIO are closed")
             self.__ir_cutoff_motor.close()
+
+    def cron(self):
+        """
+        To be called by `app.threads.cron.Cron()`.
+        See `CRON_TASKS` in `app.config.default.py:DefaultConfig`
+        """
+        sundial = Sundial()
+        is_day = sundial.is_day()
+        if self.__is_day != is_day:
+            self.toggle(sundial.mode)
+        return
 
     def toggle(self, mode):
         """
@@ -45,8 +58,8 @@ class IRCutOff(metaclass=Singleton):
 
     def _toggle(self, mode):
         if mode == Sundial.DAY:
-            logger.warning('Day mode: Turn IR cut-off filter ON')
+            logger.info('Day mode: Turn IR cut-off filter ON')
             self.__ir_cutoff_motor.backward()
         else:
-            logger.warning('Night mode: Turn IR cut-off filter OFF')
+            logger.info('Night mode: Turn IR cut-off filter OFF')
             self.__ir_cutoff_motor.forward()

@@ -20,6 +20,7 @@
                         xhr.setRequestHeader(key, obj.headers[key]);
                     });
                 }
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.onload = () => {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         resolve(xhr.response);

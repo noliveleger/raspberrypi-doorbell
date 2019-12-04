@@ -28,6 +28,9 @@ class Button(metaclass=Singleton):
         if self._led_always_on:
             logger.debug('LED should be always on, turn it on')
             self.__led.on()
+        else:
+            sundial = Sundial()
+            self.__is_day = sundial.is_day()
 
     def __del__(self):
         if self.__button:
@@ -42,6 +45,23 @@ class Button(metaclass=Singleton):
     def button(self):
         return self.__button
 
+    def cron(self):
+        """
+        To be called by `app.threads.cron.Cron()`.
+        See `CRON_TASKS` in `app.config.default.py:DefaultConfig`
+        """
+        if not self._led_always_on:
+            sundial = Sundial()
+            is_day = sundial.is_day()
+            if self.__is_day != is_day:
+                if sundial.mode == Sundial.DAY:
+                    logger.info("Day mode: Turn button's LED off")
+                    self.__led.off()
+                else:
+                    logger.info("Night mode: Turn button's LED on")
+                    self.__led.on()
+        return
+
     @property
     def last_pressed(self):
         return self.__last_pressed
@@ -55,7 +75,7 @@ class Button(metaclass=Singleton):
         return self._led_always_on
 
     def pressed(self):
-        logger.info('Button has been pressed...')
+        logger.info('Button has been pressed')
         delta = datetime.now() - self.__last_pressed
         if delta.seconds >= int(config.get('BUTTON_PRESS_THRESHOLD')):
             chime = Chime()
@@ -77,7 +97,7 @@ class Button(metaclass=Singleton):
             self.__led.off()
 
     def released(self):
-        logger.debug('Button is released...')
+        logger.debug('Button has been released')
         if not self._led_always_on:
             if Sundial().is_day():
                 self.__led.off()
@@ -85,12 +105,3 @@ class Button(metaclass=Singleton):
                 self.__led.on()
         else:
             self.__led.on()
-
-    def toggle(self, mode):
-        if not self._led_always_on:
-            if mode == Sundial.DAY:
-                logger.warning("Day mode: Turn button's LED off")
-                self.__led.off()
-            else:
-                logger.warning("Night mode: Turn button's LED on")
-                self.__led.on()

@@ -52,7 +52,7 @@ class Camera(Thread):
 
                 call(command)
                 buffered_reader = open(temp_path, 'rb')
-                logger.debug('Image {} captured...'.format(temp_path))
+                logger.debug('Image {} captured from webcam'.format(temp_path))
 
             notification = Notification(buffered_reader)
             notification.run()

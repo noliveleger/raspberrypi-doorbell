@@ -2,7 +2,7 @@
 import json
 import os
 
-from flask import Blueprint, render_template, abort, session, jsonify
+from flask import Blueprint, render_template, abort, session, jsonify, request
 
 from app.helpers.auth import authenticate
 from app.config import config
@@ -26,6 +26,33 @@ class MobileMod:
         blueprint.add_url_rule('/heartbeat', 'heartbeat', self.heartbeat, methods=['GET'])
 
         app.register_blueprint(blueprint)
+
+        @app.errorhandler(404)
+        def page_not_found(e):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'message': 'Page not found',
+                    'status_code': 404}), 404
+
+            return render_template('404.html')
+
+        @app.errorhandler(403)
+        def forbidden(e):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'message': 'Access forbidden',
+                    'status_code': 403}), 403
+
+            return render_template('403.html')
+
+        @app.errorhandler(423)
+        def locked(e):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'message': 'Somebody already picked up the phone',
+                    'status_code': 423}), 423
+
+            return render_template('423.html')
 
     @authenticate
     def index(self):
@@ -55,7 +82,8 @@ class MobileMod:
             'webrtc_endpoint': config.get('WEBRTC_ENDPOINT'),
             'webrtc_ice_servers': json.dumps(config.get('WEBRTC_ICE_SERVERS')),
             'webrtc_video_format': config.get('WEBRTC_VIDEO_FORMAT'),
-            'webrtc_force_hw_vcodec': 'true' if config.get('WEBRTC_FORCE_HW_VCODEC') else 'false'
+            'webrtc_force_hw_vcodec': 'true' if config.get('WEBRTC_FORCE_HW_VCODEC') else 'false',
+            'webrtc_call_heartbeat': config.get('WEBRTC_CALL_HEARTBEAT_INTERVAL')
         }
 
         return render_template('index.html', **variables)
@@ -68,8 +96,6 @@ class MobileMod:
         # Clear auth session
         session.pop('authenticate', None)
 
-        # Restart motion
-        Sender.send({'action': MotionReceiver.START}, MotionReceiver.TYPE)
         return jsonify({'status': 'ok'})
 
     @authenticate

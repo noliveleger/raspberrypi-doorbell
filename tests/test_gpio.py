@@ -4,9 +4,9 @@ import time
 from mock import patch
 
 from app.config import config
-from app.helpers.button import Button
+from app.devices.button import Button
 from app.helpers.sundial import Sundial
-from app.helpers.ir_cutoff import IRCutOff
+from app.devices.ir_cut_off import IRCutOff
 
 
 class DummyThread:

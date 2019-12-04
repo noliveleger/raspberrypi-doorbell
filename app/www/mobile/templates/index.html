@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>UV4L WebRTC</title>
+        <title>DoorBell WebRTC</title>
         {% assets "app_js" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
@@ -12,13 +12,6 @@
         {% endassets %}
     </head>
     <body>
-        <h1>
-            <span>WebRTC two-way Audio/Video/Data Intercom & Recorder</span>
-        </h1>
-        <h3 hidden>
-            <span>WARNING! Some browsers do not allow to access local media on insecure origins.</span>
-            <span>Consider switching the UV4L Streaming Server to secure HTTPS instead.</span>
-        </h3>
         <div id="container">
             <div class="overlayWrapper">
                 <video id="remote-video" autoplay="" width="640" height="480">
@@ -52,7 +45,8 @@
                 'webrtcVideoFormat': '{{ webrtc_video_format }}',
                 'webrtcForceHWVideoCodec': {{ webrtc_force_hw_vcodec }},
                 'resolution': '{{ resolution }}',
-                'rotate': '{{ rotate }}'
+                'rotate': '{{ rotate }}',
+                'heartbeat': {{ webrtc_call_heartbeat }}
             });
         </script>
     </body>

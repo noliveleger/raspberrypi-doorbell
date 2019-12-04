@@ -44,8 +44,6 @@ class DefaultConfig:
     ASTRA_CITY = 'Montreal'
     # Day Light offset (after sunset, before sunrise). In minutes.
     DAY_LIGHT_OFFSET = 15
-    # Cron job interval check (whether it's day or not). In seconds.
-    DAY_LIGHT_INTERVAL_CHECK = 30
 
     # Message Broker
     MESSAGE_BROKER_PORT = 65432
@@ -79,7 +77,7 @@ class DefaultConfig:
     AUTH_DATETIME_PADDING = 60
 
     WEB_APP_DOMAIN_NAME = os.getenv('WEB_APP_DOMAIN_NAME')
-    WEB_APP_PORT = 8088
+    WEB_APP_PORT = 443
     WEBRTC_WEBSOCKETS_PORT = 8090  # Default for UV4L UVC Server
     WEBRTC_ENDPOINT = '/stream/webrtc'  # Default for UV4L WebRTC server
     WEBRTC_ICE_SERVERS = {
@@ -90,6 +88,9 @@ class DefaultConfig:
             ]
         }]
     }
+
+    # Interval in seconds, client call must tell server it's still alive.
+    WEBRTC_CALL_HEARTBEAT_INTERVAL = 20
 
     """
     Available resolutions and frame rates at the min., max. and start configured 
@@ -134,7 +135,7 @@ class DefaultConfig:
         - iOS 13, Opera
         - macOS 10.15, Chrome 78
     """
-    WEBRTC_FORCE_HW_VCODEC = False
+    WEBRTC_FORCE_HW_VCODEC = True
 
     CONTENT_SECURITY_POLICY = {
         'default-src': "'self'",
@@ -170,6 +171,14 @@ class DefaultConfig:
             output='js/app.min.js'
         )
     }
+
+    # Cron job interval check (whether it's day or not). In seconds.
+    # Each class must implement a `cron` method.
+    CRON_TASKS = [
+        ('app.models.call.Call', WEBRTC_CALL_HEARTBEAT_INTERVAL),
+        ('app.devices.button.Button', 60),
+        ('app.devices.ir_cut_off.IRCutOff', 60)
+    ]
 
     @property
     def env(self):

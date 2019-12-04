@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from peewee import (
     Model,
@@ -10,7 +10,9 @@ from peewee import (
     DoesNotExist
 )
 
-from app.config import logger
+from app.config import config, logger
+from app.helpers.message.sender import Sender
+from app.helpers.message.receiver_motion import Receiver as MotionReceiver
 from . import database
 
 
@@ -27,6 +29,21 @@ class Call(Model):
 
     class Meta:
         database = database
+
+    def cron(self):
+        """
+        To be called by `app.threads.cron.Cron()`.
+        See `CRON_TASKS` in `app.config.default.py:DefaultConfig`
+        """
+        call_heartbeat_interval = config.get('WEBRTC_CALL_HEARTBEAT_INTERVAL')
+        date_ = datetime.now() - timedelta(seconds=call_heartbeat_interval * 2)
+
+        if Call.select().where(Call.status == Call.ON_CALL,
+                               Call.modified_date < date_).exists():
+            logger.debug("Found dead calls have been found")
+            self.hang_up()
+
+        return
 
     @classmethod
     def get_call(cls):
@@ -45,10 +62,13 @@ class Call(Model):
             return False
         return True
 
-    def hang_up(self):
-        q = Call.update({Call.status: self.HANG_UP}). \
-            where(Call.status == self.ON_CALL)
+    @classmethod
+    def hang_up(cls):
+        q = Call.update({Call.status: cls.HANG_UP}). \
+            where(Call.status == cls.ON_CALL)
         q.execute()
+        # Start motion if needed
+        Sender.send({'action': MotionReceiver.START}, MotionReceiver.TYPE)
 
     @property
     def is_line_busy(self):

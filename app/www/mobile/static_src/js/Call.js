@@ -8,7 +8,10 @@
 
     function Call(options) {
 
+        let self = this;
+
         let elements = Elements.getInstance(),
+            heartbeat = Heartbeat.getInstance(),
             ws = null,
             peerConnection,
             dataChannel,
@@ -105,14 +108,7 @@
             elements.remoteVideo.srcObject = event.streams[0];
         };
 
-        this.cleanUp = function() {
-            if (ws) {
-                ws.onclose = function() {}; // disable onclose handler first
-                this.hangUp();
-            }
-        };
-
-        this.pickUp = function() {
+        let pickUp = function() {
 
             if ('WebSocket' in window) {
                 elements.hangUpButton.disabled = false;
@@ -153,7 +149,7 @@
                         elements.localVideo.srcObject = stream;
                         // elements.localVideo.play();
                     }).catch(e => {
-                        stop();
+                        self.cleanUp();
                         alert(`getUserMedia() error: ${e.name}`);
                     });
                 };
@@ -186,9 +182,9 @@
                                         alert('Failed to createAnswer: ' + error);
                                     });
                                 }).catch(event => {
-                                    alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
-                                    stop();
-                                });
+                                alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
+                                self.cleanUp();
+                            });
                             break;
 
                         case 'answer':
@@ -231,14 +227,15 @@
                         peerConnection.close();
                         peerConnection = null;
                     }
-                    document.getElementById("btn-hang-up").disabled = true;
-                    document.getElementById("btn-call").disabled = false;
+                    elements.hangUpButton.disabled = true;
+                    elements.hangUpButton.classList.add('disabled');
                     document.documentElement.style.cursor = 'default';
                 };
 
                 ws.onerror = function (evt) {
-                    alert("An error has occurred!");
                     ws.close();
+                    self.cleanUp();
+                    alert("An error has occurred!");
                 };
 
             } else {
@@ -246,7 +243,36 @@
             }
         };
 
-        this.hangUp = function() {
+        self.cleanUp = function() {
+            if (ws) {
+                ws.onclose = function() {}; // disable onclose handler first
+                self.hangUp();
+            }
+        };
+
+        self.pickUp = function() {
+
+            elements.callButton.classList.add('disabled');
+            elements.hangUpButton.classList.remove('disabled');
+
+            Requests.request({
+                'url': '/pick_up',
+                'headers': {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                pickUp();
+            }).catch(() => {
+                elements.hangUpButton.classList.add('disabled');
+            });
+
+        };
+
+        self.hangUp = function() {
+
+            elements.hangUpButton.classList.add('disabled');
+            elements.hangUpButton.disabled = true;
+
             if (dataChannel) {
                 console.log("closing data channels");
                 dataChannel.close();
@@ -279,21 +305,27 @@
                 peerConnection.close();
                 peerConnection = null;
             }
+
             if (ws) {
                 ws.close();
                 ws = null;
             }
-            elements.hangUpButton.disabled = true;
-            elements.callButton.disabled = false;
 
             document.documentElement.style.cursor = 'default';
+
+            Requests.request({
+                'url': '/hang_up',
+                'headers': {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => { heartbeat.stop() });
         };
 
-        this.mute = function() {
+        self.mute = function() {
             elements.remoteVideo.muted = !elements.remoteVideo.muted;
         };
 
-        this.pause = function() {
+        self.pause = function() {
             if (elements.remoteVideo.paused) {
                 elements.remoteVideo.play();
             } else {
@@ -301,7 +333,7 @@
             }
         };
 
-        this.fullscreen = function() {
+        self.fullscreen = function() {
             if (elements.remoteVideo.requestFullScreen) {
                 elements.remoteVideo.requestFullScreen();
             } else if (elements.remoteVideo.webkitRequestFullScreen) {

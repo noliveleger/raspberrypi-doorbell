@@ -11,7 +11,7 @@ class Chime(Thread):
     """
     Makes the doorbell chime rings.
     - Front door: Default (once)
-    - Back door: Configurable in `config.ini`. See `BACK_DOORBELL_RINGS_NUMBER`
+    - Back door: Configurable in `*Config` classes. See `BACK_DOORBELL_RINGS_NUMBER`
     """
     def __init__(self, times=1):
         """

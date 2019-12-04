@@ -21,12 +21,17 @@ def synchronized(lock_):
 class Singleton(type):
     """
     Thread safe singleton metaclass
-    See: https://stackoverflow.com/a/50567397
+    See: https://stackoverflow.com/a/50567397 and https://stackoverflow.com/a/55629949
+
     """
     _instances = {}
 
-    @synchronized(lock)
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._locked_call(*args, **kwargs)
         return cls._instances[cls]
+
+    @synchronized(lock)
+    def _locked_call(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)

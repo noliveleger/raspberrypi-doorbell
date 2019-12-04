@@ -4,4 +4,4 @@
 # Look at `/etc/amazon-dash.yml`
 
 cd /home/pi/doorbell/
-/home/pi/.local/bin/pipenv run flask back-doorbell-emitter
+/home/pi/.local/bin/pipenv run flask commands back-doorbell-emitter

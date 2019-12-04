@@ -3,10 +3,10 @@ from app.config import config
 from app.helpers.message.sender import Sender
 from app.helpers.message.receiver_chime import Receiver
 
-from .base import BaseService
+from . import BaseCommand
 
 
-class BackDoorbellEmitter(BaseService):
+class BackDoorbellEmitter(BaseCommand):
 
     @staticmethod
     def start(**kwargs):

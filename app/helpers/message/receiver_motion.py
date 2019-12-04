@@ -1,9 +1,8 @@
 # -*- code utf-8 -*-
-import subprocess
+import time
 
-from app.config import config, logger
-from app.threads.day_light_toggle import DayLightToggle
-
+from app.config import config
+from app.models.process import Process
 from . import BaseReceiver
 
 
@@ -15,15 +14,18 @@ class Receiver(BaseReceiver):
     def read(cls, message, last_time_received):
         if message['action'] == cls.START:
             if config.get('USE_MOTION') is True:
-                cls.__run_command([
+                time.sleep(1)  # Give some delay to WEBRTC to release the cam
+                process = Process()
+                process.run([
                     'sudo',
                     'systemctl',
-                    'restart',
+                    'start',
                     'motioneye'
                 ])
         elif message['action'] == cls.STOP:
             if config.get('USE_MOTION') is True:
-                cls.__run_command([
+                process = Process()
+                process.run([
                     'sudo',
                     'systemctl',
                     'stop',
@@ -33,9 +35,3 @@ class Receiver(BaseReceiver):
             return False
 
         return True
-
-    @staticmethod
-    def __run_command(command):
-        cp = subprocess.run(command, stdout=subprocess.PIPE)
-        if cp.returncode is not 0:
-            logger.error('Receiver[Motion]: {}'.format(cp.stdout))

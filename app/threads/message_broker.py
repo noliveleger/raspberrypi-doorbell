@@ -32,7 +32,6 @@ class MessageBroker(Thread):
                     host,
                     port
                 ))
-                #self.__last_date_received = datetime.now()
                 while not self.__stop:
                     conn, addr = s.accept()
                     with conn:
@@ -47,20 +46,15 @@ class MessageBroker(Thread):
 
                             if not self.__dispatch(message):
                                 break
-
         except Exception as e:
-            logger.error(e)
+            logger.error('MessageBroker: {}'.format(str(e)))
         return
 
     def __dispatch(self, message):
         """
         Does specific action depending on the type of `message`.
 
-        As of today, only 2 types of messages are handled:
-        - `TYPE_CHIME`: To make the chime rings when Amazon Dash Button is pressed
-        - `TYPE_SIGNAL`: To make the socket stop listening if signal is "stop"
-
-        More to come.
+        Look at `helpers.message.receiver_*.py`
 
         It returns a boolean to tell the socket whether it should continue to
         receive data or not.
@@ -84,10 +78,13 @@ class MessageBroker(Thread):
             self.__last_date_received[message['type']] = datetime.fromtimestamp(
                 message['timestamp'])
         except KeyError:
-            logger.error('Message is invalid. Some attributes is missing.')
+            logger.error('MessageBroker: Message is invalid. Some attributes are missing.')
             return False
         except ImportStringError:
-            logger.error('Message is invalid. Unknown receiver')
+            logger.error('MessageBroker: Message is invalid. Unknown receiver.')
+            return False
+        except Exception as e:
+            logger.error('MessageBroker:Dispatch: {}'.format(str(e)))
             return False
 
         return True

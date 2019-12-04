@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 
 
-class BaseService(ABC):
+class BaseCommand(ABC):
 
     @staticmethod
     @abstractmethod

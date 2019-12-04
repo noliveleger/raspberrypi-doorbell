@@ -5,7 +5,7 @@ from flask_talisman import Talisman
 from app.config import config
 from app.helpers.assets import Assets
 from app.models import database
-from app.services import ServicesLoader
+from app.management.commands_loader import CommandsLoader
 from app.www.mobile.module import MobileMod
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ app.config.from_object(config)
 
 assets = Assets.register(app)
 mobile_mod = MobileMod(app)
-services_loader = ServicesLoader(app)
+commands_loader = CommandsLoader(app)
 
 talisman = Talisman(app,
                     content_security_policy=config.get('CONTENT_SECURITY_POLICY'),

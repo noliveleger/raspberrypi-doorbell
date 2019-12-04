@@ -27,7 +27,7 @@ class Auth:
     @staticmethod
     def execute():
 
-        if config.env == 'dev':
+        if config.env != 'dev':
             return True
         else:
             try:
@@ -35,10 +35,9 @@ class Auth:
                 request_datetime = auth_session['request_datetime']
                 token = auth_session['token']
             except KeyError:
-                if request.args.get('token') is not None:
-                    request_datetime = datetime.now() - timedelta(seconds=int(
-                        config.get('AUTH_DATETIME_PADDING')))
-                    token = request.args.get('token')
+                request_datetime = datetime.now() - timedelta(weeks=int(
+                    config.get('AUTH_DATETIME_PADDING')))
+                token = request.args.get('token')
 
             query = Token.select().where(Token.token == token,
                                          Token.token.is_null(False),

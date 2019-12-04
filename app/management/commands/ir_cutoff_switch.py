@@ -1,9 +1,9 @@
 # -*- code utf-8 -*-
-from app.helpers.ir_cutoff import IRCutOff
-from .base import BaseService
+from app.devices.ir_cut_off import IRCutOff
+from . import BaseCommand
 
 
-class IRCutOffSwitch(BaseService):
+class IRCutOffSwitch(BaseCommand):
     # Simple helper to trigger IR Cut-Off manually
 
     @staticmethod

@@ -12,17 +12,10 @@
                 call = new Call(options);
                 bindEvents();
                 prepareVideo(options);
-                heartbeat = new Heartbeat();
+                heartbeat = new Heartbeat(options['heartbeat']);
+                heartbeat.start();
             } else {
                 alert('HTTPS must be enabled!');
-            }
-        };
-
-        let getValue = function(value, defaultValue = null) {
-            if (typeof(options[value]) !== 'undefined') {
-                return options[value];
-            } else {
-                return defaultValue;
             }
         };
 
@@ -34,17 +27,11 @@
                 fullscreenButton = elements.fullscreenButton;
 
             callButton.addEventListener('click', function() {
-                callButton.classList.add('disabled');
-                hangUpButton.classList.remove('disabled');
-                heartbeat.start();
                 call.pickUp();
             });
             // callButton.addEventListener('touchstart', start);
             hangUpButton.addEventListener('click', function() {
                 call.hangUp();
-                heartbeat.stop();
-                callButton.classList.remove('disabled');
-                hangUpButton.classList.add('disabled');
             });
             // hangUpButton.addEventListener('touchstart', stop);
 
@@ -56,16 +43,16 @@
         };
 
         let prepareVideo = function() {
-            let dimensions = getValue('resolution', '640x480').split('x'),
+            let dimensions = options['resolution'].split('x'),
                 width = dimensions[0],
                 height = dimensions[1],
-                rotate = getValue('rotate');
+                rotate = options['rotate'];
 
-            document.getElementById('remote-video').style.width = width + 'px';
-            document.getElementById('remote-video').style.height = height + 'px';
+            elements.remoteVideo.style.width = width + 'px';
+            elements.remoteVideo.style.height = height + 'px';
 
             if (rotate !== 0) {
-                document.getElementById("remote-video").style.transform = "rotate(" + rotate + "deg)";
+                elements.remoteVideo.style.transform = "rotate(" + rotate + "deg)";
             }
         };
 
