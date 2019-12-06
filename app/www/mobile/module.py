@@ -9,7 +9,9 @@ from app.config import config
 from app.helpers.message.sender import Sender
 from app.helpers.message.receiver_motion import Receiver as MotionReceiver
 from app.helpers.message.receiver_sound import Receiver as SoundReceiver
+from app.helpers.session import Session
 from app.models.call import Call
+from app.models.token import Token
 
 
 class MobileMod:
@@ -21,9 +23,16 @@ class MobileMod:
                               template_folder='templates')
 
         blueprint.add_url_rule('/', 'index', self.index, methods=['GET'])
-        blueprint.add_url_rule('/hang_up', 'hang_up', self.hang_up, methods=['GET'])
-        blueprint.add_url_rule('/pick_up', 'pick_up', self.pick_up, methods=['GET'])
-        blueprint.add_url_rule('/heartbeat', 'heartbeat', self.heartbeat, methods=['GET'])
+        blueprint.add_url_rule('/fake-session', 'fake_session', self.fake_session,
+                               methods=['GET'])
+        blueprint.add_url_rule('/hang-up', 'hang_up', self.hang_up,
+                               methods=['GET'])
+        blueprint.add_url_rule('/pick-up', 'pick_up', self.pick_up,
+                               methods=['GET'])
+        blueprint.add_url_rule('/heartbeat', 'heartbeat', self.heartbeat,
+                               methods=['GET'])
+        blueprint.add_url_rule('/validate-session', 'validate_session',
+                               self.validate_session, methods=['GET'])
 
         app.register_blueprint(blueprint)
 
@@ -61,20 +70,21 @@ class MobileMod:
 
         call = Call.get_call()
         if not call.get_the_line(caller_id):
-            session.pop('authenticate', None)
+            Session.clear_auth_session()
             abort(423)
 
         session['caller_id'] = caller_id
 
         # Make the doorbell's speaker rings like a phone
-        Sender.send({
-            'action': SoundReceiver.START,
-            'file': 'phone-ringing'
-        }, SoundReceiver.TYPE)
+        #Sender.send({
+        #    'action': SoundReceiver.START,
+        #    'file': 'phone-ringing'
+        #}, SoundReceiver.TYPE)
 
         Sender.send({'action': MotionReceiver.STOP}, MotionReceiver.TYPE)
 
         variables = {
+            'anticache': os.urandom(8).hex(),
             'domain_name': config.get('WEB_APP_DOMAIN_NAME'),
             'resolution': config.get('WEBCAM_RESOLUTION'),
             'rotate': config.get('WEBCAM_ROTATE'),
@@ -88,14 +98,28 @@ class MobileMod:
 
         return render_template('index.html', **variables)
 
+    def fake_session(self):
+        if config.env == 'dev':
+            token = Token()
+            token.save()
+
+            url = 'https://{domain}:{port}?token={token}'.format(
+                domain=config.get('WEB_APP_DOMAIN_NAME'),
+                port=config.get('WEB_APP_PORT'),
+                token=token.token
+            )
+
+            return url
+        else:
+            abort(404)
+
     @authenticate
     def hang_up(self):
         call = self.__get_call()
         call.hang_up()
 
         # Clear auth session
-        session.pop('authenticate', None)
-
+        Session.clear_auth_session()
         return jsonify({'status': 'ok'})
 
     @authenticate
@@ -111,6 +135,10 @@ class MobileMod:
             'action': SoundReceiver.STOP,
             'file': 'phone-ringing'
         }, SoundReceiver.TYPE)
+        return jsonify({'status': 'ok'})
+
+    @authenticate
+    def validate_session(self):
         return jsonify({'status': 'ok'})
 
     def __get_call(self):

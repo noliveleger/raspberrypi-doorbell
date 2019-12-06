@@ -1,4 +1,4 @@
-"""Peewee migrations -- 004_alter_table_creation.py.
+"""Peewee migrations -- 001_initial.py.
 
 Some examples (model - class or model name)::
 
@@ -36,15 +36,46 @@ SQL = pw.SQL
 def migrate(migrator, database, fake=False, **kwargs):
     """Write your migrations here."""
 
-    migrator.add_fields(
-        'process',
+    @migrator.create_model
+    class Call(pw.Model):
+        id = pw.AutoField()
+        created_date = pw.DateTimeField()
+        modified_date = pw.DateTimeField()
+        status = pw.IntegerField()
+        caller_id = pw.CharField(max_length=32, null=True)
 
-        command=pw.CharField(null=True, max_length=255))
+        class Meta:
+            table_name = "call"
 
-    migrator.change_fields('token', used=pw.BooleanField(constraints=[SQL("DEFAULT True")]))
+    @migrator.create_model
+    class Process(pw.Model):
+        id = pw.AutoField()
+        created_date = pw.DateTimeField()
+        modified_date = pw.DateTimeField()
+        pid = pw.IntegerField()
+        slug = pw.CharField(max_length=32, null=True)
+        command = pw.CharField(max_length=255, null=True)
+
+        class Meta:
+            table_name = "process"
+
+    @migrator.create_model
+    class Token(pw.Model):
+        id = pw.AutoField()
+        created_date = pw.DateTimeField()
+        token = pw.CharField(max_length=255, unique=True)
+        used = pw.BooleanField(default=False)
+
+        class Meta:
+            table_name = "token"
+
 
 
 def rollback(migrator, database, fake=False, **kwargs):
     """Write your rollback migrations here."""
 
-    migrator.remove_fields('process', 'command')
+    migrator.remove_model('call')
+
+    migrator.remove_model('process')
+
+    migrator.remove_model('token')

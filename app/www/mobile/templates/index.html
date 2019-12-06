@@ -4,23 +4,20 @@
     <head>
         <meta charset="UTF-8">
         <title>DoorBell WebRTC</title>
-        {% assets "app_js" %}
-            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-        {% endassets %}
-        {% assets "app_css" %}
-             <link href="{{ ASSET_URL }}" rel="stylesheet" />
-        {% endassets %}
+        <script type="text/javascript" src="{{ url_for('mobile_bp.static', filename='app.js') }}?t={{ anticache }}"></script>
+        <link href="{{ url_for('mobile_bp.static', filename='app.css') }}?t={{ anticache }}" rel="stylesheet" />
+
     </head>
     <body>
         <div id="container">
             <div class="overlayWrapper">
-                <video id="remote-video" autoplay="" width="640" height="480">
+                <video id="remote-video" width="640" height="480">
                     Your browser does not support the video tag.
                 </video>
                 <p class="overlay">remote</p>
             </div>
             <div class="overlayWrapper hide">
-                <video id="local-video" autoplay="" width="320" height="240">
+                <video id="local-video" width="320" height="240">
                     Your browser does not support the video tag.
                 </video>
                 <p class="overlay">local</p>
@@ -37,12 +34,12 @@
         </div><br>
         <a target="_top" href="/">home</a>&nbsp;<a href="/panel" target="_blank" title="change the image settings on-the-fly">control panel</a>
         <script nonce="{{ csp_nonce() }}">
-            let app = new App({
+            let main = new Main({
                 'domainName': '{{ domain_name }}',
-                'wsPort': '{{ webrtc_web_sockets_port }}',
+                'wsPort': {{ webrtc_web_sockets_port }},
                 'wsEndpoint': '{{ webrtc_endpoint }}',
                 'iceServers': '{{ webrtc_ice_servers | safe }}',
-                'webrtcVideoFormat': '{{ webrtc_video_format }}',
+                'webrtcVideoFormat': {{ webrtc_video_format }},
                 'webrtcForceHWVideoCodec': {{ webrtc_force_hw_vcodec }},
                 'resolution': '{{ resolution }}',
                 'rotate': '{{ rotate }}',

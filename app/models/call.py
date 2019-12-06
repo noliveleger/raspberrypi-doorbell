@@ -40,7 +40,7 @@ class Call(Model):
 
         if Call.select().where(Call.status == Call.ON_CALL,
                                Call.modified_date < date_).exists():
-            logger.debug("Found dead calls have been found")
+            logger.debug("Dead calls have been found")
             self.hang_up()
 
         return

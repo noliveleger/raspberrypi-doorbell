@@ -23,6 +23,9 @@ class Singleton(type):
     Thread safe singleton metaclass
     See: https://stackoverflow.com/a/50567397 and https://stackoverflow.com/a/55629949
 
+    Every class which inherits from Singleton cannot be called within the constructor
+    of another class which inherits from Singleton too.
+    Otherwise a lock will occur because of `@synchronized(lock)` decorator.
     """
     _instances = {}
 

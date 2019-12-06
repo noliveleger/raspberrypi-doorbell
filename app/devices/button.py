@@ -4,6 +4,8 @@ from gpiozero import Button as GPIOZeroButton, LED
 
 from app.helpers import Singleton
 from app.config import config, logger
+from app.helpers.message.sender import Sender
+from app.helpers.message.receiver_sound import Receiver as SoundReceiver
 from app.helpers.sundial import Sundial
 from app.threads.camera import Camera
 from app.threads.chime import Chime
@@ -25,12 +27,7 @@ class Button(metaclass=Singleton):
         self.__button.when_pressed = self.pressed
         self.__button.when_released = self.released
         self._led_always_on = config.get('BUTTON_LED_ALWAYS_ON')  # Protected to access from unit tests
-        if self._led_always_on:
-            logger.debug('LED should be always on, turn it on')
-            self.__led.on()
-        else:
-            sundial = Sundial()
-            self.__is_day = sundial.is_day()
+        self.__is_day = None
 
     def __del__(self):
         if self.__button:
@@ -50,7 +47,15 @@ class Button(metaclass=Singleton):
         To be called by `app.threads.cron.Cron()`.
         See `CRON_TASKS` in `app.config.default.py:DefaultConfig`
         """
-        if not self._led_always_on:
+        self.activate_led(cron_mode=True)
+        return
+
+    def activate_led(self, cron_mode=False):
+        if self._led_always_on:
+            if cron_mode is not True:
+                logger.debug('LED should be always on, turn it on')
+                self.__led.on()
+        else:
             sundial = Sundial()
             is_day = sundial.is_day()
             if self.__is_day != is_day:
@@ -60,7 +65,8 @@ class Button(metaclass=Singleton):
                 else:
                     logger.info("Night mode: Turn button's LED on")
                     self.__led.on()
-        return
+
+                self.__is_day = is_day
 
     @property
     def last_pressed(self):
@@ -84,6 +90,7 @@ class Button(metaclass=Singleton):
             notification.start()
             camera = Camera()
             camera.start()
+
             self.__last_pressed = datetime.now()
         else:
             logger.debug('Button was pressed too quickly!')
@@ -95,6 +102,18 @@ class Button(metaclass=Singleton):
                 self.__led.off()
         else:
             self.__led.off()
+
+        # Stop play doorbell wav file (if any)
+        Sender.send({
+            'action': SoundReceiver.STOP,
+            'file': 'doorbell'
+        }, SoundReceiver.TYPE)
+
+        # Start play doorbell wav file
+        Sender.send({
+            'action': SoundReceiver.START,
+            'file': 'doorbell'
+        }, SoundReceiver.TYPE)
 
     def released(self):
         logger.debug('Button has been released')

@@ -21,9 +21,6 @@ python-dotenv = "*"
 peewee = "*"
 peewee-migrate = "*"
 flask-talisman = "*"
-flask-assets = "*"
-cssmin = "*"
-jsmin = "*"
 
 [requires]
 python_version = "3.5"

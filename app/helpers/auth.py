@@ -5,6 +5,7 @@ from flask import request, abort, session
 from functools import wraps
 
 from app.config import config
+from app.helpers.session import Session
 from app.models.token import Token
 
 
@@ -26,30 +27,28 @@ class Auth:
 
     @staticmethod
     def execute():
+        try:
+            auth_session = session['authenticate']
+            request_datetime = auth_session['request_datetime']
+            token = auth_session['token']
+        except KeyError:
+            request_datetime = datetime.now() - timedelta(seconds=int(
+                config.get('AUTH_DATETIME_PADDING')))
+            token = request.args.get('token')
 
-        if config.env != 'dev':
-            return True
+        query = Token.select().where(Token.token == token,
+                                     Token.token.is_null(False),
+                                     Token.used == False,
+                                     Token.created_date >= request_datetime)
+
+        if not query.exists():
+            # Not valid, don't go further
+            Session.clear_auth_session()
+            return False
+
+        if Session.exists():
+            Session.renew_auth_session()
         else:
-            try:
-                auth_session = session['authenticate']
-                request_datetime = auth_session['request_datetime']
-                token = auth_session['token']
-            except KeyError:
-                request_datetime = datetime.now() - timedelta(weeks=int(
-                    config.get('AUTH_DATETIME_PADDING')))
-                token = request.args.get('token')
+            Session.create_auth_session(token, request_datetime)
 
-            query = Token.select().where(Token.token == token,
-                                         Token.token.is_null(False),
-                                         Token.created_date >= request_datetime)
-
-            if not query.exists():
-                # Not valid, don't go further
-                return False
-
-            session['authenticate'] = {
-                'request_datetime': request_datetime,
-                'token': token,
-                'datetime': datetime.now()
-            }
-            return True
+        return True

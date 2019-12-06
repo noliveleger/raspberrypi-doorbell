@@ -17,8 +17,7 @@ class IRCutOff(metaclass=Singleton):
             forward=config.get('IR_CUTOFF_FORWARD_GPIO_BCM'),
             backward=config.get('IR_CUTOFF_BACKWARD_GPIO_BCM'),
             enable=config.get('IR_CUTOFF_ENABLER_GPIO_BCM'))
-
-        self.__is_day = Sundial().is_day()
+        self.__is_day = None
 
     def __del__(self):
         if self.__ir_cutoff_motor:

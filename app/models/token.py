@@ -18,7 +18,7 @@ class Token(Model):
 
     id = PrimaryKeyField
     created_date = DateTimeField(default=datetime.now)
-    used = BooleanField(default=True)
+    used = BooleanField(default=False)
     token = CharField(unique=True)
 
     class Meta:

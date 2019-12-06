@@ -1,0 +1,30 @@
+{
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "concurrently": "^5.0.0",
+    "typescript": "^3.7.3",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  },
+  "scripts": {
+    "babel": "./node_modules/.bin/babel static_src/js/build-tsc --out-dir static_src/js/build-babel --source-maps",
+    "build": "npm run clean && concurrently \"npm:build-*\"",
+    "build-css": "npm run node-sass --omit-source-map-url static_src/css/app.scss static/app.css --output-style compact",
+    "build-js": "npm run pre-build && npm run webpack && npm run clean-build-steps",
+    "clean": "npm run clean-build-steps && rm -rf static",
+    "clean-build-steps": "rm -rf static_src/js/build-tsc static_src/js/build-babel",
+    "dev": "npm run clean && npm run pre-build && concurrently \"npm:watch-*\"",
+    "node-sass": "./node_modules/.bin/node-sass",
+    "pre-build": "npm run tsc && npm run babel",
+    "tsc": "./node_modules/.bin/tsc",
+    "watch-babel": "./node_modules/.bin/babel static_src/js/build-tsc --out-dir static_src/js/build-babel/ --source-maps -w",
+    "watch-css": "npm run node-sass --watch static_src/css/app.scss static/app.css",
+    "watch-webpack": "./node_modules/.bin/webpack --mode development --watch --watch-aggregate-timeout 600",
+    "webpack": "./node_modules/.bin/webpack --mode production"
+  },
+  "dependencies": {
+    "@types/es6-promise": "^3.3.0",
+    "node-sass": "^4.13.0"
+  }
+}

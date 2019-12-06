@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-from flask_assets import Bundle
-
 
 class DefaultConfig:
 
@@ -135,7 +133,7 @@ class DefaultConfig:
         - iOS 13, Opera
         - macOS 10.15, Chrome 78
     """
-    WEBRTC_FORCE_HW_VCODEC = True
+    WEBRTC_FORCE_HW_VCODEC = False
 
     CONTENT_SECURITY_POLICY = {
         'default-src': "'self'",
@@ -153,23 +151,6 @@ class DefaultConfig:
                 WEBRTC_ENDPOINT
             )
         ]
-    }
-
-    ASSETS = {
-        'app_css': Bundle(
-            'mobile_bp/../static_src/css/app.css',
-            filters='cssmin',
-            output='css/app.min.css'
-        ),
-        'app_js': Bundle(
-            'mobile_bp/../static_src/js/Requests.js',
-            'mobile_bp/../static_src/js/Heartbeat.js',
-            'mobile_bp/../static_src/js/Elements.js',
-            'mobile_bp/../static_src/js/Call.js',
-            'mobile_bp/../static_src/js/App.js',
-            filters='jsmin',
-            output='js/app.min.js'
-        )
     }
 
     # Cron job interval check (whether it's day or not). In seconds.

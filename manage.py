@@ -3,15 +3,13 @@ from flask import Flask
 from flask_talisman import Talisman
 
 from app.config import config
-from app.helpers.assets import Assets
 from app.models import database
 from app.management.commands_loader import CommandsLoader
 from app.www.mobile.module import MobileMod
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='app/www/mobile/static')
 app.config.from_object(config)
 
-assets = Assets.register(app)
 mobile_mod = MobileMod(app)
 commands_loader = CommandsLoader(app)
 
