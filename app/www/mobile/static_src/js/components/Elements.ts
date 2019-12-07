@@ -1,23 +1,23 @@
 export class Elements {
 
     protected static instance: Elements;
-    public callButton: HTMLElement | null;
-    public hangUpButton: HTMLElement | null;
-    public playPauseButton: HTMLElement | null;
-    public muteButton: HTMLElement | null;
-    public fullscreenButton: HTMLElement | null;
-    public remoteVideo: HTMLElement | null;
-    public localVideo: HTMLElement | null;
+    public callButton: HTMLButtonElement | null;
+    public hangUpButton: HTMLButtonElement | null;
+    public playPauseButton: HTMLButtonElement | null;
+    public muteButton: HTMLButtonElement | null;
+    public fullscreenButton: HTMLButtonElement | null;
+    public remoteVideo: HTMLVideoElement | null;
+    public localVideo: HTMLVideoElement | null;
 
     private constructor() {
 
-        this.callButton = document.getElementById('btn-call');
-        this.hangUpButton = document.getElementById('btn-hang-up');
-        this.playPauseButton = document.getElementById('btn-pause');
-        this.muteButton = document.getElementById('btn-mute');
-        this.fullscreenButton = document.getElementById('btn-fullscreen');
-        this.remoteVideo = document.getElementById('remote-video');
-        this.localVideo = document.getElementById('local-video');
+        this.callButton = <HTMLButtonElement> document.getElementById('btn-call')!;
+        this.hangUpButton = <HTMLButtonElement> document.getElementById('btn-hang-up');
+        this.playPauseButton = <HTMLButtonElement> document.getElementById('btn-pause');
+        this.muteButton = <HTMLButtonElement> document.getElementById('btn-mute');
+        this.fullscreenButton = <HTMLButtonElement> document.getElementById('btn-fullscreen');
+        this.remoteVideo = <HTMLVideoElement> document.getElementById('remote-video');
+        this.localVideo = <HTMLVideoElement> document.getElementById('local-video');
 
     }
 

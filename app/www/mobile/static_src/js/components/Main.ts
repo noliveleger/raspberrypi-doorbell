@@ -19,12 +19,11 @@ class Main {
 
     private _heartbeat: Heartbeat = Heartbeat.getInstance();
     private _elements: Elements = Elements.getInstance();
-    private _call: Call;
+    private _call!: Call;
 
     public constructor(options: IOptions) {
 
         if (location.protocol.indexOf('https') === 0) {
-
             this._call = new Call(options);
             this._bindEvents();
             // prepareVideo(options);
@@ -38,11 +37,11 @@ class Main {
     private _bindEvents(): void {
 
         let self = this,
-            callButton = this._elements.callButton,
-            hangUpButton = this._elements.hangUpButton,
-            btnPause = this._elements.playPauseButton,
-            muteButton = this._elements.muteButton,
-            fullscreenButton = this._elements.fullscreenButton;
+            callButton = this._elements.callButton!,
+            hangUpButton = this._elements.hangUpButton!,
+            btnPause = this._elements.playPauseButton!,
+            muteButton = this._elements.muteButton!,
+            fullscreenButton = this._elements.fullscreenButton!;
 
         callButton.addEventListener('click', function() {
             self._call.pickUp();
@@ -58,7 +57,7 @@ class Main {
 
         document.addEventListener('beforeunload', function() {
             self._heartbeat.stop();
-            this._call.cleanUp();
+            self._call.cleanUp();
         });
     }
 }

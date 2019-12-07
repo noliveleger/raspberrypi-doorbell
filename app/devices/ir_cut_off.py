@@ -33,6 +33,7 @@ class IRCutOff(metaclass=Singleton):
         is_day = sundial.is_day()
         if self.__is_day != is_day:
             self.toggle(sundial.mode)
+            self.__is_day = is_day
         return
 
     def toggle(self, mode):

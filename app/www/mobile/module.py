@@ -99,6 +99,7 @@ class MobileMod:
         return render_template('index.html', **variables)
 
     def fake_session(self):
+
         if config.env == 'dev':
             token = Token()
             token.save()

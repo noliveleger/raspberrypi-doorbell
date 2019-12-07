@@ -11,13 +11,10 @@ export class Call {
     private _elements: Elements = Elements.getInstance();
     private _ws: any = null;
     private _peerConnection: any;
-    private _options: IOptions;
+    private _options!: IOptions;
     private _dataChannel: any;
     private _localDataChannel: any;
     private _audioVideoStream: any;
-    private _domainName: string;
-    private _wsPort: number;
-    private _wsEndpoint: string;
     private _peerConnectionConfig: any;
     private _peerConnectionOptions: any = { optional: [] };
     private _mediaConstraints: any = {
@@ -39,14 +36,7 @@ export class Call {
         let self = this;
 
         navigator.getUserMedia = navigator.mediaDevices.getUserMedia ||
-            navigator.getUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.msGetUserMedia;
-
-        self._domainName = options.domainName;
-        self._wsPort = options.wsPort;
-        self._wsEndpoint = options.wsEndpoint;
+            navigator.getUserMedia;
         self._peerConnectionConfig = JSON.parse(options.iceServers);
         self._options = options;
 
@@ -85,16 +75,17 @@ export class Call {
                 };
                 self._ws.send(JSON.stringify(request));
             } else {
+                self._elements.remoteVideo!.play();
                 console.log('End of candidates');
             }
         };
 
         let onRemoteStreamRemoved = function(event: any) {
-            self._elements.remoteVideo.srcObject = null;
+            self._elements.remoteVideo!.srcObject = null;
         };
 
         let onTrack = function(event: any) {
-            self._elements.remoteVideo.srcObject = event.streams[0];
+            self._elements.remoteVideo!.srcObject = event.streams[0];
         };
 
         try {
@@ -115,7 +106,7 @@ export class Call {
 
         if (self._ws) {
             self._ws.onclose = function() {}; // disable onclose handler first
-            self.hangUp(force=true);
+            self.hangUp(true);
         }
     }
 
@@ -125,16 +116,18 @@ export class Call {
 
         Requests.requestJSON({'url': '/validate-session'}).then(() => {
 
-            self._elements.callButton.classList.add('disabled');
-            self._elements.hangUpButton.classList.remove('disabled');
+            self._elements.callButton!.classList.add('disabled');
+            self._elements.hangUpButton!.classList.remove('disabled');
 
             if ('WebSocket' in window) {
 
-                self._elements.hangUpButton.disabled = false;
-                self._elements.callButton.disabled = true;
+                self._elements.hangUpButton!.disabled = false;
+                self._elements.callButton!.disabled = true;
                 document.documentElement.style.cursor = 'wait';
 
-                self._ws = new WebSocket('wss://' + self._domainName + ':' + self._wsPort + self._wsEndpoint);
+                self._ws = new WebSocket('wss://'
+                    + self._options.domainName + ':' + self._options.wsPort
+                    + self._options.wsEndpoint);
 
                 let call = function(stream: any) {
                     self._iceCandidates = [];
@@ -164,11 +157,9 @@ export class Call {
                         console.log('Received local stream');
                         self._audioVideoStream = stream;
                         call(stream);
-                        self._elements.localVideo.muted = true;
-                        self._elements.localVideo.srcObject = stream;
-                        // elements.localVideo.play();
+                        self._elements.localVideo!.muted = true;
+                        self._elements.localVideo!.srcObject = stream;
                     }).catch(e => {
-                        console.log('ERROR ' + e);
                         self.cleanUp();
                         alert(`getUserMedia() error: ${e.name}`);
                     });
@@ -202,7 +193,7 @@ export class Call {
                                         }).catch((error: any) => {
                                             alert('Failed to createAnswer: ' + error);
                                         });
-                                    }).catch((event: error) => {
+                                    }).catch((event: any) => {
                                     alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
                                     self.cleanUp();
                                 });
@@ -242,7 +233,6 @@ export class Call {
                 };
 
                 self._ws.onclose = function(evt: any) {
-                    console.log('On close')
                     if (self._peerConnection) {
                         console.log('PerrConnection.close()');
                         self._peerConnection.close();
@@ -250,7 +240,7 @@ export class Call {
                     }
                 };
 
-                self._ws.onerror = function (evt:any) {
+                self._ws.onerror = function (evt: any) {
                     self.cleanUp();
                     alert("An error has occurred!");
                 };
@@ -259,22 +249,19 @@ export class Call {
                 alert("Sorry, this browser does not support WebSockets.");
             }
         }).catch((response) => {
-            console.log(response);
-            console.log('REJECTED');
             self.cleanUp();
         });
     }
 
     public hangUp(force: boolean = false) {
 
-        this._elements.hangUpButton.classList.add('disabled');
-        this._elements.hangUpButton.disabled = true;
+        this._elements.hangUpButton!.classList.add('disabled');
+        this._elements.hangUpButton!.disabled = true;
 
         if (this._dataChannel) {
             console.log("closing data channels");
             this._dataChannel.close();
             this._dataChannel = null;
-            document.getElementById('dataChannels').disabled = true;
         }
 
         if (this._localDataChannel) {
@@ -289,7 +276,6 @@ export class Call {
                     this._audioVideoStream.getVideoTracks()[0].stop();
                 if (this._audioVideoStream.getAudioTracks().length)
                     this._audioVideoStream.getAudioTracks()[0].stop();
-                // this._audioVideoStream.stop(); // deprecated
             } catch (e) {
                 for (let i = 0; i < this._audioVideoStream.getTracks().length; i++)
                     this._audioVideoStream.getTracks()[i].stop();
@@ -297,8 +283,8 @@ export class Call {
             this._audioVideoStream = null;
         }
 
-        this._elements.remoteVideo.srcObject = null;
-        this._elements.localVideo.srcObject = null;
+        this._elements.remoteVideo!.srcObject = null;
+        this._elements.localVideo!.srcObject = null;
 
         if (this._peerConnection) {
             this._peerConnection.close();
@@ -317,26 +303,22 @@ export class Call {
 
     public mute() {
         let elements: Elements = Elements.getInstance();
-        elements.remoteVideo.muted = !elements.remoteVideo.muted;
+        elements.remoteVideo!.muted = !elements.remoteVideo!.muted;
     }
 
     public pause() {
         let elements: Elements = Elements.getInstance();
-        if (elements.remoteVideo.paused) {
-            elements.remoteVideo.play();
+        if (elements.remoteVideo!.paused) {
+            elements.remoteVideo!.play();
         } else {
-            elements.remoteVideo.pause();
+            elements.remoteVideo!.pause();
         }
     }
 
     public fullscreen() {
         let elements: Elements = Elements.getInstance();
-        if (elements.remoteVideo.requestFullScreen) {
-            elements.remoteVideo.requestFullScreen();
-        } else if (elements.remoteVideo.webkitRequestFullScreen) {
-            elements.remoteVideo.webkitRequestFullScreen();
-        } else if (elements.remoteVideo.mozRequestFullScreen) {
-            elements.remoteVideo.mozRequestFullScreen();
+        if (elements.remoteVideo!.requestFullscreen) {
+            elements.remoteVideo!.requestFullscreen();
         }
     }
 }
