@@ -21,6 +21,7 @@ python-dotenv = "*"
 peewee = "*"
 peewee-migrate = "*"
 flask-talisman = "*"
+checksumdir = "*"
 
 [requires]
 python_version = "3.5"

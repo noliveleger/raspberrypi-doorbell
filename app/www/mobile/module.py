@@ -2,7 +2,16 @@
 import json
 import os
 
-from flask import Blueprint, render_template, abort, session, jsonify, request
+from flask import (
+    abort,
+    Blueprint,
+    jsonify,
+    redirect,
+    request,
+    render_template,
+    session,
+)
+from checksumdir import dirhash
 
 from app.helpers.auth import authenticate
 from app.config import config
@@ -35,6 +44,7 @@ class MobileMod:
                                self.validate_session, methods=['GET'])
 
         app.register_blueprint(blueprint)
+        self.__blueprint = blueprint
 
         @app.errorhandler(404)
         def page_not_found(e):
@@ -76,15 +86,15 @@ class MobileMod:
         session['caller_id'] = caller_id
 
         # Make the doorbell's speaker rings like a phone
-        #Sender.send({
-        #    'action': SoundReceiver.START,
-        #    'file': 'phone-ringing'
-        #}, SoundReceiver.TYPE)
+        Sender.send({
+           'action': SoundReceiver.START,
+           'file': 'phone-ringing'
+        }, SoundReceiver.TYPE)
 
         Sender.send({'action': MotionReceiver.STOP}, MotionReceiver.TYPE)
 
         variables = {
-            'anticache': os.urandom(8).hex(),
+            'anticache': dirhash(self.__blueprint.static_folder, 'sha1'),
             'domain_name': config.get('WEB_APP_DOMAIN_NAME'),
             'resolution': config.get('WEBCAM_RESOLUTION'),
             'rotate': config.get('WEBCAM_ROTATE'),
@@ -110,7 +120,7 @@ class MobileMod:
                 token=token.token
             )
 
-            return url
+            return redirect(url, 301)
         else:
             abort(404)
 

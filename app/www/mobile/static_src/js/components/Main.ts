@@ -10,7 +10,7 @@ export interface IOptions {
     webrtcVideoFormat: string;
     webrtcForceHWVideoCodec: number,
     rotate: string,
-    heartbeat: number
+    heartbeat_interval: number
 }
 
 declare const window: any;
@@ -27,7 +27,7 @@ class Main {
             this._call = new Call(options);
             this._bindEvents();
             // prepareVideo(options);
-            this._heartbeat.start(options['heartbeat']);
+            this._heartbeat.start(options.heartbeat_interval);
         } else {
             alert('HTTPS must be enabled!');
         }
