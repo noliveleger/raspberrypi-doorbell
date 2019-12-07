@@ -1,16 +1,14 @@
-# -*- code utf-8 -*-
-# Simplified version of gpiozero conftest.py
-
+# coding: utf-8
 import os
 import pytest
 
 from gpiozero import Device
-from gpiozero.pins.mock import MockFactory, MockPWMPin
+from gpiozero.pins.mock import MockFactory
 
+from app import create_app
+from app.models import database, get_models
 
-def pytest_configure(config):
-    os.environ['FLASK_ENV'] = 'testing'
-    return config
+from app.config import config as config_
 
 
 @pytest.yield_fixture()
@@ -32,3 +30,22 @@ def mock_factory(request):
     if Device.pin_factory is not None:
         Device.pin_factory.reset()
     Device.pin_factory = save_factory
+
+
+@pytest.fixture(scope='session')
+def app():
+
+    app = create_app()
+    models = get_models()
+
+    with app.app_context():
+        database.create_tables(models)
+        yield app
+        database.drop_tables(models)
+
+    os.unlink(config_.get('DATABASE').get('database'))
+
+
+@pytest.fixture(scope='module')
+def client(app):
+    return app.test_client()

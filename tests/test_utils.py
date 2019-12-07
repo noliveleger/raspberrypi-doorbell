@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from datetime import datetime, date, timedelta
 
 from mock import patch

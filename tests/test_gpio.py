@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import time
 
 from mock import patch
@@ -7,14 +7,13 @@ from app.config import config
 from app.devices.button import Button
 from app.helpers.sundial import Sundial
 from app.devices.ir_cut_off import IRCutOff
+from . import (
+    DummyThread,
+    MockSocket,
+)
 
 
-class DummyThread:
-
-    def run(self):
-        return
-
-
+@patch('socket.socket', new=MockSocket)
 @patch('app.threads.chime.Chime.run', new=DummyThread.run)
 @patch('app.threads.camera.Camera.run', new=DummyThread.run)
 @patch('app.threads.notification.Notification.run', new=DummyThread.run)
@@ -24,6 +23,7 @@ def test_button(mock_factory):
     button_pin = mock_factory.pin(config.get('BUTTON_GPIO_BCM'))
 
     button = Button()
+    button.activate_led()
 
     button._led_always_on = True  # Force LED to be on
     checkpoint = button.last_pressed
