@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import json
 import os
 
@@ -10,6 +10,7 @@ from flask import (
     request,
     render_template,
     session,
+    url_for
 )
 from checksumdir import dirhash
 
@@ -32,50 +33,30 @@ class MobileMod:
                               template_folder='templates')
 
         blueprint.add_url_rule('/', 'index', self.index, methods=['GET'])
-        blueprint.add_url_rule('/fake-session', 'fake_session', self.fake_session,
-                               methods=['GET'])
-        blueprint.add_url_rule('/hang-up', 'hang_up', self.hang_up,
-                               methods=['GET'])
         blueprint.add_url_rule('/pick-up', 'pick_up', self.pick_up,
                                methods=['GET'])
         blueprint.add_url_rule('/heartbeat', 'heartbeat', self.heartbeat,
                                methods=['GET'])
         blueprint.add_url_rule('/validate-session', 'validate_session',
                                self.validate_session, methods=['GET'])
+        blueprint.add_url_rule('/hang-up', 'hang_up', self.hang_up,
+                               methods=['GET'])
+
+        if config.env == 'dev':
+            blueprint.add_url_rule('/simulate-notification', 'simulate_notification',
+                                   self.simulate_notification,
+                                   methods=['GET'])
 
         app.register_blueprint(blueprint)
         self.__blueprint = blueprint
 
-        @app.errorhandler(404)
-        def page_not_found(e):
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({
-                    'message': 'Page not found',
-                    'status_code': 404}), 404
-
-            return render_template('404.html')
-
-        @app.errorhandler(403)
-        def forbidden(e):
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({
-                    'message': 'Access forbidden',
-                    'status_code': 403}), 403
-
-            return render_template('403.html')
-
-        @app.errorhandler(423)
-        def locked(e):
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({
-                    'message': 'Somebody already picked up the phone',
-                    'status_code': 423}), 423
-
-            return render_template('423.html')
-
     @authenticate
     def index(self):
-
+        """
+        Check if a on-going call exists.
+        If it exists, authorize access only if `caller_id` is owner's call
+        If it does not exist, create the call and assign it to `caller_id`
+        """
         caller_id = self.__get_caller_id()
 
         call = Call.get_call()
@@ -96,7 +77,6 @@ class MobileMod:
         variables = {
             'anticache': dirhash(self.__blueprint.static_folder, 'sha1'),
             'domain_name': config.get('WEB_APP_DOMAIN_NAME'),
-            'resolution': config.get('WEBCAM_RESOLUTION'),
             'rotate': config.get('WEBCAM_ROTATE'),
             'webrtc_web_sockets_port': config.get('WEBRTC_WEBSOCKETS_PORT'),
             'webrtc_endpoint': config.get('WEBRTC_ENDPOINT'),
@@ -108,21 +88,21 @@ class MobileMod:
 
         return render_template('index.html', **variables)
 
-    def fake_session(self):
+    def simulate_notification(self):
+        """
+        Simulate a notification and let us access the page with a new token.
+        Useful for development. Should be NEVER accessible on production
+        """
+        token = Token()
+        token.save()
 
-        if config.env == 'dev':
-            token = Token()
-            token.save()
+        url = 'https://{domain}:{port}?token={token}'.format(
+            domain=config.get('WEB_APP_DOMAIN_NAME'),
+            port=config.get('WEB_APP_PORT'),
+            token=token.token
+        )
 
-            url = 'https://{domain}:{port}?token={token}'.format(
-                domain=config.get('WEB_APP_DOMAIN_NAME'),
-                port=config.get('WEB_APP_PORT'),
-                token=token.token
-            )
-
-            return redirect(url, 301)
-        else:
-            abort(404)
+        return redirect(url, 301)
 
     @authenticate
     def hang_up(self):
@@ -135,8 +115,13 @@ class MobileMod:
 
     @authenticate
     def heartbeat(self):
+        """
+        Update `date_modified` of `call`.
+        It lets the cron job know what the call is still active
+        and should not terminated
+        """
         call = self.__get_call()
-        call.save()  # For Garbage collector
+        call.save()
         return jsonify({'status': 'ok'})
 
     @authenticate
@@ -150,6 +135,12 @@ class MobileMod:
 
     @authenticate
     def validate_session(self):
+        """
+        Only used to validate whether session is still active before
+        doing some actions in JavaScript.
+
+        @ToDo Merge with `heartbeat()`?
+        """
         return jsonify({'status': 'ok'})
 
     def __get_call(self):
@@ -163,4 +154,11 @@ class MobileMod:
 
     @staticmethod
     def __get_caller_id():
+        """
+        Create a `caller_id` in case of race conditions when
+        two auth sessions are created at the same time.
+        Only one user can place the call.
+        (e.g. 2 different users receive notifications and click the link)
+        :return: str
+        """
         return session.get('caller_id', os.urandom(32).hex())

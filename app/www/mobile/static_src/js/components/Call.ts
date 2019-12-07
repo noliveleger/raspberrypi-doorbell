@@ -259,13 +259,11 @@ export class Call {
         this._elements.hangUpButton!.disabled = true;
 
         if (this._dataChannel) {
-            console.log("closing data channels");
             this._dataChannel.close();
             this._dataChannel = null;
         }
 
         if (this._localDataChannel) {
-            console.log("closing local data channels");
             this._localDataChannel.close();
             this._localDataChannel = null;
         }

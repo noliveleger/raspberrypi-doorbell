@@ -14,13 +14,11 @@
                 <video id="remote-video" playsinline width="640" height="480">
                     Your browser does not support the video tag.
                 </video>
-                <p class="overlay">remote</p>
             </div>
             <div class="overlayWrapper hide">
                 <video id="local-video" width="320" height="240">
                     Your browser does not support the video tag.
                 </video>
-                <p class="overlay">local</p>
             </div>
         </div>
         <div id="controls">
@@ -32,7 +30,6 @@
             <button id="btn-call">Call!</button>
             <button disabled id="btn-hang-up" class="disabled">Hang up</button>
         </div><br>
-        <a target="_top" href="/">home</a>&nbsp;<a href="/panel" target="_blank" title="change the image settings on-the-fly">control panel</a>
         <script nonce="{{ csp_nonce() }}">
             let main = new Main({
                 'domainName': '{{ domain_name }}',
@@ -42,8 +39,8 @@
                 'webrtcVideoFormat': {{ webrtc_video_format }},
                 'webrtcForceHWVideoCodec': {{ webrtc_force_hw_vcodec }},
                 'resolution': '{{ resolution }}',
-                'rotate': '{{ rotate }}',
-                'heartbeat': {{ webrtc_call_heartbeat }}
+                'rotate': {{ rotate }},
+                'heartbeat_interval': {{ webrtc_call_heartbeat }}
             });
         </script>
     </body>

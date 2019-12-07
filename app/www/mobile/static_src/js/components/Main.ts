@@ -9,7 +9,7 @@ export interface IOptions {
     iceServers: string;
     webrtcVideoFormat: string;
     webrtcForceHWVideoCodec: number,
-    rotate: string,
+    rotate: number,
     heartbeat_interval: number
 }
 
@@ -26,7 +26,7 @@ class Main {
         if (location.protocol.indexOf('https') === 0) {
             this._call = new Call(options);
             this._bindEvents();
-            // prepareVideo(options);
+            this._prepareVideo(options);
             this._heartbeat.start(options.heartbeat_interval);
         } else {
             alert('HTTPS must be enabled!');
@@ -59,6 +59,13 @@ class Main {
             self._heartbeat.stop();
             self._call.cleanUp();
         });
+    }
+
+    private _prepareVideo(options: IOptions) {
+        let rotate = options.rotate;
+        if (rotate !== 0) {
+            this._elements.remoteVideo!.style.transform = `rotate(${rotate}deg)`;
+        }
     }
 }
 
