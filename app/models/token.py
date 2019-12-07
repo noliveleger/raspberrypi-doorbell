@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import os
 from datetime import datetime
 
@@ -11,10 +11,10 @@ from peewee import (
 )
 
 from app.config import logger
-from . import database
+from . import database, ModelMixin
 
 
-class Token(Model):
+class Token(Model,  ModelMixin):
 
     id = PrimaryKeyField
     created_date = DateTimeField(default=datetime.now)

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import subprocess
 from datetime import datetime
 
@@ -8,15 +8,13 @@ from peewee import (
     CharField,
     DateTimeField,
     IntegerField,
-    TextField,
-    BooleanField
 )
 
 from app.config import logger
-from . import database
+from . import database, ModelMixin
 
 
-class Process(Model):
+class Process(Model, ModelMixin):
 
     id = PrimaryKeyField
     created_date = DateTimeField(default=datetime.now)

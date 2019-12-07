@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from time import sleep
 
 from app.gpio.ir_cutoff_motor import IRCutOffMotor

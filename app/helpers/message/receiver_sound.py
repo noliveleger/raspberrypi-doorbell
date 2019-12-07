@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import os
 
 from app.config import config

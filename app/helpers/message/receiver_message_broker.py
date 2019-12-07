@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from app.config import logger
 from app.threads.cron import Cron
 

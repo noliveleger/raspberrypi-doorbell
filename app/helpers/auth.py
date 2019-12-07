@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from datetime import datetime, timedelta
 
 from flask import request, abort, session
@@ -31,14 +31,16 @@ class Auth:
             auth_session = session['authenticate']
             request_datetime = auth_session['request_datetime']
             token = auth_session['token']
+            used = True
         except KeyError:
             request_datetime = datetime.now() - timedelta(seconds=int(
                 config.get('AUTH_DATETIME_PADDING')))
             token = request.args.get('token')
+            used = False
 
         query = Token.select().where(Token.token == token,
                                      Token.token.is_null(False),
-                                     Token.used == False,
+                                     Token.used == used,
                                      Token.created_date >= request_datetime)
 
         if not query.exists():
@@ -50,5 +52,8 @@ class Auth:
             Session.renew_auth_session()
         else:
             Session.create_auth_session(token, request_datetime)
+            token = query.get()
+            token.used = True
+            token.save()
 
         return True

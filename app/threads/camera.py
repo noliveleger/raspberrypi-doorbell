@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import logging
 import os
 from io import BytesIO, BufferedReader

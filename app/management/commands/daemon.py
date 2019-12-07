@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from signal import pause
 
 from app.config import logger

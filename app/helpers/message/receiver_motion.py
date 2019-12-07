@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import time
 
 from app.config import config

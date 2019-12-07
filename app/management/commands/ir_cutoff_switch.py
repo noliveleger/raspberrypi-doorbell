@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from app.devices.ir_cut_off import IRCutOff
 from . import BaseCommand
 

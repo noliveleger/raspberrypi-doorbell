@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import pytz
 from datetime import date, datetime, timedelta
 

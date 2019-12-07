@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from datetime import datetime, timedelta
 
 from peewee import (
@@ -13,13 +13,13 @@ from peewee import (
 from app.config import config, logger
 from app.helpers.message.sender import Sender
 from app.helpers.message.receiver_motion import Receiver as MotionReceiver
-from . import database
+from . import database, ModelMixin
 
 
-class Call(Model):
+class Call(Model, ModelMixin):
 
     ON_CALL = 1
-    HANG_UP = 2
+    HUNG_UP = 2
 
     id = PrimaryKeyField
     created_date = DateTimeField(default=datetime.now)
@@ -30,7 +30,8 @@ class Call(Model):
     class Meta:
         database = database
 
-    def cron(self):
+    @classmethod
+    def cron(cls):
         """
         To be called by `app.threads.cron.Cron()`.
         See `CRON_TASKS` in `app.config.default.py:DefaultConfig`
@@ -40,8 +41,8 @@ class Call(Model):
 
         if Call.select().where(Call.status == Call.ON_CALL,
                                Call.modified_date < date_).exists():
-            logger.debug("Dead calls have been found")
-            self.hang_up()
+            logger.debug('Dead calls have been found')
+            cls.hang_up()
 
         return
 
@@ -64,7 +65,7 @@ class Call(Model):
 
     @classmethod
     def hang_up(cls):
-        q = Call.update({Call.status: cls.HANG_UP}). \
+        q = Call.update({Call.status: cls.HUNG_UP}). \
             where(Call.status == cls.ON_CALL)
         q.execute()
         # Start motion if needed

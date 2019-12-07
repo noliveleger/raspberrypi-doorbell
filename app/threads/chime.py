@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 from threading import Thread
 from time import sleep
 

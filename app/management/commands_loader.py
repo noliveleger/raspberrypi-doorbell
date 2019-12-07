@@ -1,4 +1,4 @@
-# -*- code utf-8 -*-
+# coding: utf-8
 import click
 from flask.cli import AppGroup
 
