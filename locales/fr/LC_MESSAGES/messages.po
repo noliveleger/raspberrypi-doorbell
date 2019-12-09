@@ -1,0 +1,44 @@
+# English translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-12-09 16:09-0500\n"
+"PO-Revision-Date: 2019-12-09 17:34-0500\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+"Last-Translator: Olivier Leger\n"
+"X-Generator: Poedit 1.8.8\n"
+
+#: app/threads/notification.py:42
+msgid "daemon/notification/front_door_message"
+msgstr "On sonne à la porte d’entrée"
+
+#: app/threads/notification.py:43
+msgid "daemon/notification/call_cta_label"
+msgstr "Appeler"
+
+#: app/threads/notification.py:46
+msgid "daemon/notification/back_door_message"
+msgstr "On sonne à la grille arrière"
+
+#: app/www/mobile/module.py:87
+msgid "web_app/call/before"
+msgstr "Appeler l’entrée"
+
+#: app/www/mobile/module.py:88
+msgid "web_app/call/on_progress"
+msgstr "Appel en cours…"
+
+#: app/www/mobile/module.py:89
+msgid "web_app/call/terminated"
+msgstr "Appel terminé"

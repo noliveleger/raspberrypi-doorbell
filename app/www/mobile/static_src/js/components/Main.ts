@@ -1,17 +1,7 @@
 import { Call } from "./Call";
 import { Elements } from "./Elements";
 import { Heartbeat } from "./Heartbeat";
-
-export interface IOptions {
-    domainName: string;
-    wsPort: number;
-    wsEndpoint: string;
-    iceServers: string;
-    webrtcVideoFormat: string;
-    webrtcForceHWVideoCodec: number,
-    rotate: number,
-    heartbeat_interval: number
-}
+import { IOptions, IStrings} from "./Interfaces";
 
 declare const window: any;
 
@@ -20,18 +10,24 @@ class Main {
     private _heartbeat: Heartbeat = Heartbeat.getInstance();
     private _elements: Elements = Elements.getInstance();
     private _call!: Call;
+    private _strings!: IStrings;
 
     public constructor(options: IOptions) {
 
+        let self = this;
+
         if (location.protocol.indexOf('https') === 0) {
-            this._call = new Call(options);
-            this._bindEvents();
-            this._prepareVideo(options);
-            this._heartbeat.start(options.heartbeat_interval);
+            self._strings = JSON.parse(options.strings);
+            self._elements.message!.innerText = self._strings.beforeCall;
+
+            self._call = new Call(options);
+            self._bindEvents();
+            self._rotateVideo(options);
+            // self._heartbeat.start(options.heartbeat_interval);
+            self._setContainerHeight();
         } else {
             alert('HTTPS must be enabled!');
         }
-
     }
 
     private _bindEvents(): void {
@@ -39,29 +35,43 @@ class Main {
         let self = this,
             callButton = this._elements.callButton!,
             hangUpButton = this._elements.hangUpButton!,
-            btnPause = this._elements.playPauseButton!,
-            muteButton = this._elements.muteButton!,
-            fullscreenButton = this._elements.fullscreenButton!;
+            dial = this._elements.dial!;
 
         callButton.addEventListener('click', function() {
+            dial.play();
             self._call.pickUp();
         });
-        // callButton.addEventListener('touchstart', start);
+
         hangUpButton.addEventListener('click', function() {
+            dial.pause();
             self._call.hangUp();
         });
-
-        btnPause.addEventListener('click', self._call.pause);
-        muteButton.addEventListener('click', self._call.mute);
-        fullscreenButton.addEventListener('click', self._call.fullscreen);
 
         document.addEventListener('beforeunload', function() {
             self._heartbeat.stop();
             self._call.cleanUp();
         });
+
+        window.addEventListener('onresize', function() {
+            self._setContainerHeight();
+        });
+
+        window.addEventListener('orientationchange', function() {
+            self._setContainerHeight();
+        });
     }
 
-    private _prepareVideo(options: IOptions) {
+    private _setContainerHeight() {
+
+        let elements: Elements = Elements.getInstance();
+
+        setTimeout(function() {
+            window.scrollTop = 0;
+            elements.container!.style.height = window.innerHeight + 'px';
+        }, 200);
+    }
+
+    private _rotateVideo(options: IOptions) {
         let rotate = options.rotate;
         if (rotate !== 0) {
             this._elements.remoteVideo!.style.transform = `rotate(${rotate}deg)`;

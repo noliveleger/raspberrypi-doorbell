@@ -37,6 +37,18 @@ def test_valid_token(client):
     call.delete_instance()
 
 
+def test_expired_token(client):
+    token = Token()
+    token.save()
+
+    time.sleep(config.get('AUTH_DATETIME_PADDING') + 1)
+    # Try with querystring
+    response = client.get(url_for('mobile_bp.index', token=token.token, _external=False))
+    assert response.status_code == 403
+
+    token.delete_instance()
+
+
 def test_valid_already_taken_token(client):
 
     token = Token()

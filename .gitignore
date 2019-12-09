@@ -8,7 +8,8 @@ __pycache__
 ._*
 .env
 db/
-app/www/mobile/static/
+app/www/mobile/static/js/*
+app/www/mobile/static/css/*
 app/www/mobile/static_src/build-*
 app/www/mobile/static_src/js/build-*
 node_modules

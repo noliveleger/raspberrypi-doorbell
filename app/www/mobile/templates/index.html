@@ -1,35 +1,26 @@
-
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>DoorBell WebRTC</title>
-        <script type="text/javascript" src="{{ url_for('mobile_bp.static', filename='app.js') }}?t={{ anticache }}"></script>
-        <link href="{{ url_for('mobile_bp.static', filename='app.css') }}?t={{ anticache }}" rel="stylesheet" />
-
+        <title>Raspberry Doorbell Intercom</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link href="{{ url_for('mobile_bp.static', filename='css/app.css') }}?t={{ anticache }}" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
     </head>
     <body>
+        <audio id="dial" src="{{ url_for('mobile_bp.static', filename='sounds/phone-ringing.mp3') }}"></audio>
         <div id="container">
-            <div class="overlayWrapper">
-                <video id="remote-video" playsinline width="640" height="480">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="overlayWrapper hide">
-                <video id="local-video" width="320" height="240">
-                    Your browser does not support the video tag.
-                </video>
+            <div id="overlay"></div>
+            <div id="message">&nbsp;</div>
+            <video playsinline id="remote-video"></video>
+            <video id="local-video"></video>
+            <div class="button_containers">
+                <button class="button" id="btn-call"><i class="fas fa-phone-alt"></i></button>
+                <button class="button hide" id="btn-hang-up"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        <div id="controls">
-            <button type=button class="btn" id="btn-pause" title="pause or resume local player">Pause/Resume</button>
-            <button type=button id="btn-mute" class="btn"  title="mute or unmute remote audio source">Mute/Unmute</button>
-            <button type=button id="btn-fullscreen" class="btn">Fullscreen</button>
-        </div>
-        <div id="commands">
-            <button id="btn-call">Call!</button>
-            <button disabled id="btn-hang-up" class="disabled">Hang up</button>
-        </div><br>
+        <script type="text/javascript" src="{{ url_for('mobile_bp.static', filename='js/app.js') }}?t={{ anticache }}"></script>
         <script nonce="{{ csp_nonce() }}">
             let main = new Main({
                 'domainName': '{{ domain_name }}',
@@ -38,10 +29,11 @@
                 'iceServers': '{{ webrtc_ice_servers | safe }}',
                 'webrtcVideoFormat': {{ webrtc_video_format }},
                 'webrtcForceHWVideoCodec': {{ webrtc_force_hw_vcodec }},
-                'resolution': '{{ resolution }}',
                 'rotate': {{ rotate }},
-                'heartbeat_interval': {{ webrtc_call_heartbeat }}
+                'heartbeat_interval': {{ webrtc_call_heartbeat }},
+                'strings': '{{ javascript_strings | safe }}',
             });
+
         </script>
     </body>
 </html>

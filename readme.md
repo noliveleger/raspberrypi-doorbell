@@ -38,12 +38,25 @@ pi@pi:~ $ sudo apt-get update
 pi@pi:~ $ sudo apt-get install python3-pip git vim
 pi@pi:~ $ sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 pi@pi:~ $ sudo apt-get install python3-rpi.gpio
+pi@pi:~ $ sudo apt-get install nodejs
 pi@pi:~ $ pip3 install pipenv --user
 pi@pi:~ $ git clone https://oleger@bitbucket.org/oleger/doorbell.git
 pi@pi:~ $ cd doorbell
 pi@pi:~/doorbell $ pipenv install
+```
 
-``` 
+1. Create DB
+`pi@pi:~/doorbell $ /bin/bash scripts/create_db.bash`
+
+2. Build static files
+```
+pi@pi:~/doorbell $ cd app/www/mobile
+pi@pi:~/doorbell/app/www/mobile $ npm install
+pi@pi:~/doorbell/app/www/mobile $ npm run build
+```
+
+
+
 
 #### UV4L:
 

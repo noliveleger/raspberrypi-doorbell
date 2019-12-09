@@ -31,17 +31,23 @@ class Notification(Thread):
             if self.__front_door:
                 token = Token()
                 token.save()
-                message = '{message}\nCall: https://{domain}:{port}?token={token}'.format(
+                auth_web_app_link = 'https://{domain}:{port}?token={token}'.format(
                     message=config.get('NOTIFICATION_FRONT_DOOR_MESSAGE'),
                     domain=config.get('WEB_APP_DOMAIN_NAME'),
                     port=config.get('WEB_APP_PORT'),
-                    token=token.token
-                )
+                    token=token.token)
+                message = '{message}  '\
+                          '[{call_cta_label}](call_cta_link)'.\
+                    format(
+                        message=_('daemon/notification/front_door_message'),
+                        call_cta_label=_('daemon/notification/call_cta_label'),
+                        call_cta_link=auth_web_app_link)
             else:
-                message = config.get('NOTIFICATION_BACK_DOOR_MESSAGE')
+                message = _('daemon/notification/back_door_message')
 
             bot.send_message(chat_id=config.get('TELEGRAM_CHAT_ID'),
-                             text='[{}] - {}'.format(now, message))
+                             text=message,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
 
             logger.debug('Ring notification sent to Telegram')
 

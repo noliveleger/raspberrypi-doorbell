@@ -3,7 +3,7 @@
  * The code not used for this project was removed.
  */
 import { Elements } from "./Elements";
-import { IOptions } from "./Main";
+import {IOptions, IStrings} from "./Interfaces";
 import { Requests } from "./Requests";
 
 export class Call {
@@ -30,6 +30,7 @@ export class Call {
     private _RTCPeerConnection: any = window.RTCPeerConnection || window.webkitRTCPeerConnection;
     private _RTCSessionDescription: any = window.RTCSessionDescription;
     private _RTCIceCandidate: any = window.RTCIceCandidate;
+    private _strings!: IStrings;
 
     public constructor(options: IOptions) {
 
@@ -39,7 +40,7 @@ export class Call {
             navigator.getUserMedia;
         self._peerConnectionConfig = JSON.parse(options.iceServers);
         self._options = options;
-
+        self._strings = JSON.parse(self._options.strings);
     }
 
     private _addIceCandidates() {
@@ -116,14 +117,11 @@ export class Call {
 
         Requests.requestJSON({'url': '/validate-session'}).then(() => {
 
-            self._elements.callButton!.classList.add('disabled');
-            self._elements.hangUpButton!.classList.remove('disabled');
+            self._elements.callButton!.classList.add('hide');
+            self._elements.hangUpButton!.classList.remove('hide');
+            self._elements.message!.innerText = self._strings.onProgressCall;
 
             if ('WebSocket' in window) {
-
-                self._elements.hangUpButton!.disabled = false;
-                self._elements.callButton!.disabled = true;
-                document.documentElement.style.cursor = 'wait';
 
                 self._ws = new WebSocket('wss://'
                     + self._options.domainName + ':' + self._options.wsPort
@@ -179,6 +177,10 @@ export class Call {
 
                         case 'offer':
                             Requests.requestJSON({'url': '/pick-up'}).then(() => {
+
+                                self._elements.dial!.pause();
+                                self._elements.container!.classList.add('on-call');
+
                                 self._peerConnection.setRemoteDescription(new self._RTCSessionDescription(JSON.parse(data)))
                                     .then(() => {
                                         self._remoteDesc = true;
@@ -216,7 +218,6 @@ export class Call {
                                 candidate = new self._RTCIceCandidate({sdpMLineIndex: elt.sdpMLineIndex, candidate: elt.candidate});
                             self._iceCandidates.push(candidate);
                             if (self._remoteDesc) { self._addIceCandidates(); }
-                            document.documentElement.style.cursor = 'default';
                             break;
 
                         case 'iceCandidates': // when trickle ice is not enabled
@@ -227,14 +228,13 @@ export class Call {
                                 self._iceCandidates.push(candidate);
                             }
                             if (self._remoteDesc) { self._addIceCandidates(); }
-                            document.documentElement.style.cursor = 'default';
                             break;
                     }
                 };
 
                 self._ws.onclose = function(evt: any) {
                     if (self._peerConnection) {
-                        console.log('PerrConnection.close()');
+                        console.log('PeerConnection.close()');
                         self._peerConnection.close();
                         self._peerConnection = null;
                     }
@@ -255,8 +255,11 @@ export class Call {
 
     public hangUp(force: boolean = false) {
 
-        this._elements.hangUpButton!.classList.add('disabled');
-        this._elements.hangUpButton!.disabled = true;
+        let self = this;
+
+        self._elements.hangUpButton!.classList.add('hide');
+        self._elements.message!.innerText = this._strings.terminatedCall;
+        self._elements.container!.classList.remove('on-call');
 
         if (this._dataChannel) {
             this._dataChannel.close();
@@ -299,26 +302,6 @@ export class Call {
         }
     }
 
-    public mute() {
-        let elements: Elements = Elements.getInstance();
-        elements.remoteVideo!.muted = !elements.remoteVideo!.muted;
-    }
-
-    public pause() {
-        let elements: Elements = Elements.getInstance();
-        if (elements.remoteVideo!.paused) {
-            elements.remoteVideo!.play();
-        } else {
-            elements.remoteVideo!.pause();
-        }
-    }
-
-    public fullscreen() {
-        let elements: Elements = Elements.getInstance();
-        if (elements.remoteVideo!.requestFullscreen) {
-            elements.remoteVideo!.requestFullscreen();
-        }
-    }
 }
 
 

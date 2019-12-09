@@ -2,22 +2,24 @@ export class Elements {
 
     protected static instance: Elements;
     public callButton: HTMLButtonElement | null;
+    public container: HTMLDivElement | null;
+    public dial: HTMLAudioElement | null;
     public hangUpButton: HTMLButtonElement | null;
-    public playPauseButton: HTMLButtonElement | null;
-    public muteButton: HTMLButtonElement | null;
-    public fullscreenButton: HTMLButtonElement | null;
-    public remoteVideo: HTMLVideoElement | null;
     public localVideo: HTMLVideoElement | null;
+    public message: HTMLDivElement | null;
+    public overlay: HTMLDivElement | null;
+    public remoteVideo: HTMLVideoElement | null;
 
     private constructor() {
 
-        this.callButton = <HTMLButtonElement> document.getElementById('btn-call')!;
+        this.dial = <HTMLAudioElement> document.getElementById('dial');
+        this.callButton = <HTMLButtonElement> document.getElementById('btn-call');
+        this.container = <HTMLDivElement> document.getElementById('container');
         this.hangUpButton = <HTMLButtonElement> document.getElementById('btn-hang-up');
-        this.playPauseButton = <HTMLButtonElement> document.getElementById('btn-pause');
-        this.muteButton = <HTMLButtonElement> document.getElementById('btn-mute');
-        this.fullscreenButton = <HTMLButtonElement> document.getElementById('btn-fullscreen');
-        this.remoteVideo = <HTMLVideoElement> document.getElementById('remote-video');
         this.localVideo = <HTMLVideoElement> document.getElementById('local-video');
+        this.message = <HTMLDivElement> document.getElementById('message');
+        this.overlay = <HTMLDivElement> document.getElementById('overlay');
+        this.remoteVideo = <HTMLVideoElement> document.getElementById('remote-video');
 
     }
 

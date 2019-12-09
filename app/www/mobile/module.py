@@ -7,15 +7,13 @@ from flask import (
     Blueprint,
     jsonify,
     redirect,
-    request,
     render_template,
     session,
-    url_for
 )
 from checksumdir import dirhash
 
 from app.helpers.auth import authenticate
-from app.config import config
+from app.config import config, locale
 from app.helpers.message.sender import Sender
 from app.helpers.message.receiver_motion import Receiver as MotionReceiver
 from app.helpers.message.receiver_sound import Receiver as SoundReceiver
@@ -43,8 +41,8 @@ class MobileMod:
                                methods=['GET'])
 
         if config.env == 'dev':
-            blueprint.add_url_rule('/simulate-notification', 'simulate_notification',
-                                   self.simulate_notification,
+            blueprint.add_url_rule('/call', 'call',
+                                   self.call,
                                    methods=['GET'])
 
         app.register_blueprint(blueprint)
@@ -83,12 +81,18 @@ class MobileMod:
             'webrtc_ice_servers': json.dumps(config.get('WEBRTC_ICE_SERVERS')),
             'webrtc_video_format': config.get('WEBRTC_VIDEO_FORMAT'),
             'webrtc_force_hw_vcodec': 'true' if config.get('WEBRTC_FORCE_HW_VCODEC') else 'false',
-            'webrtc_call_heartbeat': config.get('WEBRTC_CALL_HEARTBEAT_INTERVAL')
+            'webrtc_call_heartbeat': config.get('WEBRTC_CALL_HEARTBEAT_INTERVAL'),
+            'font_awesome_id': config.get('WEB_APP_FONT_AWESOME_ID'),
+            'javascript_strings': json.dumps({
+                'beforeCall': _('web_app/call/before'),
+                'onProgressCall':  _('web_app/call/on_progress'),
+                'terminatedCall': _('web_app/call/terminated')
+            })
         }
 
         return render_template('index.html', **variables)
 
-    def simulate_notification(self):
+    def call(self):
         """
         Simulate a notification and let us access the page with a new token.
         Useful for development. Should be NEVER accessible on production

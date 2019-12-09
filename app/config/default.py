@@ -8,14 +8,15 @@ class DefaultConfig:
 
     LOG_LEVEL = 'INFO'
 
+    # Available languages
+    # - en (English)
+    # - fr (French)
+    LANGUAGE = 'en'
+
     # telegram settings
     TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
     TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
     TELEGRAM_CHAT_URL = os.getenv('TELEGRAM_CHAT_URL')
-
-    # notification message
-    NOTIFICATION_FRONT_DOOR_MESSAGE = "Quelqu'un est à la porte d'entrée"
-    NOTIFICATION_BACK_DOOR_MESSAGE = "Quelqu'un est à la grille arrière"
 
     # fswebcam settings (useless if MotionEye is enabled)
     WEBCAM_BIN = '/usr/bin/fswebcam'
@@ -76,6 +77,7 @@ class DefaultConfig:
 
     WEB_APP_DOMAIN_NAME = os.getenv('WEB_APP_DOMAIN_NAME')
     WEB_APP_PORT = 443
+
     WEBRTC_WEBSOCKETS_PORT = 8090  # Default for UV4L UVC Server
     WEBRTC_ENDPOINT = '/stream/webrtc'  # Default for UV4L WebRTC server
     WEBRTC_ICE_SERVERS = {
@@ -137,11 +139,25 @@ class DefaultConfig:
 
     CONTENT_SECURITY_POLICY = {
         'default-src': "'self'",
+        'font-src': [
+            "'self'",
+            'https://fonts.gstatic.com',
+            'https://use.fontawesome.com/',
+        ],
         'img-src': [
             "'self'",
             'data:'
         ],
-        'style-src': "'self'",
+        'style-src': [
+            "'self'",
+            'https://use.fontawesome.com/',
+            'https://fonts.googleapis.com/',
+        ],
+        'style-src-elem': [
+            "'self'",
+            'https://fonts.googleapis.com/css',
+            'https://use.fontawesome.com/',
+        ],
         'script-src': "'self'",
         'connect-src': [
             "'self'",

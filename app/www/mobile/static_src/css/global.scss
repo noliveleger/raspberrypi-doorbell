@@ -1,0 +1,72 @@
+$buttonSize: 75px;
+
+$iPhoneWidth: 375px;
+$iPhone-height: 667px;
+$iPhoneXWidth: $iPhoneWidth;
+$iPhoneXHeight: 812px;
+$iPhonePlusWidth: 414px;
+$iPhonePlusHeight: 736px;
+$iPhoneMaxWidth: $iPhonePlusWidth;
+$iPhoneMaxHeight: 896px;
+$iPadWidth: 768px;
+$iPadHeight: 1024px;
+
+@mixin respond-to($media) {
+  @if $media == iphone-landscape {
+    @media only screen and (device-width: $iPhoneWidth) and (device-height: $iPhone-height) and (orientation:landscape) {
+      @content;
+    }
+  }
+  @else if $media == iphone-portrait {
+    @media only screen and (device-width: $iPhoneWidth) and (device-height: $iPhone-height) and (orientation:portrait) {
+      @content;
+    }
+  }
+  @else if $media == iphone-x-landscape {
+    @media only screen and (device-width: $iPhoneXWidth) and (device-height: $iPhoneXHeight) and (orientation:landscape) {
+      @content;
+    }
+  }
+  @else if $media == iphone-x-portrait {
+    @media only screen and (device-width: $iPhoneXWidth) and (device-height: $iPhoneXHeight) and (orientation:portrait) {
+      @content;
+    }
+  }
+  @else if $media == iphone-plus-landscape {
+    @media only screen and (device-width: $iPhonePlusWidth) and (device-height: $iPhonePlusHeight) and (orientation:portrait) {
+      @content;
+    }
+  }
+  @else if $media == iphone-plus-portrait {
+    @media only screen and (device-width: $iPhonePlusWidth) and (device-height: $iPhonePlusHeight) and (orientation:portrait) {
+      @content;
+    }
+  }
+  @else if $media == iphone-max-landscape {
+    @media only screen and (device-width: $iPhoneMaxWidth) and (device-height: $iPhoneMaxHeight) and (orientation:landscape) {
+      @content;
+    }
+  }
+  @else if $media == iphone-max-portrait {
+    @media only screen and (device-width: $iPhoneMaxWidth) and (device-height: $iPhoneMaxHeight) and (orientation:portrait) {
+      @content;
+    }
+  }
+  @else if $media == ipad-landscape {
+    @media only screen and (device-width: $iPadWidth) and (device-height: $iPadHeight) and (orientation:landscape) {
+      @content;
+    }
+  }
+  @else if $media == ipad-portrait {
+    @media only screen and (device-width: $iPadWidth) and (device-height: $iPadHeight) and (orientation:portrait) {
+      @content;
+    }
+  }
+}
+
+
+@mixin horizontal() {
+  @media only screen and (orientation:landscape), (min-width: 1024px) {
+    @content;
+  }
+}

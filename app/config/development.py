@@ -7,4 +7,7 @@ class DevelopmentConfig(DefaultConfig):
     ENV = 'dev'
 
     LOG_LEVEL = 'DEBUG'
+
     WEBCAM_RESOLUTION = '1280x720'
+
+    WEBRTC_FORCE_HW_VCODEC = True

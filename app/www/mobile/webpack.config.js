@@ -5,6 +5,6 @@ module.exports = {
   entry: './static_src/js/build-babel/Main.js',
   output: {
     filename: 'app.js',
-    path: path.resolve(__dirname, 'static')
+    path: path.resolve(__dirname, 'static/js')
   }
 };

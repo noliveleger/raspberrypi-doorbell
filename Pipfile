@@ -21,6 +21,7 @@ peewee = "*"
 peewee-migrate = "*"
 flask-talisman = "*"
 checksumdir = "*"
+babel = "*"
 
 [requires]
 python_version = "3.5"

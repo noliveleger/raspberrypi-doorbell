@@ -1,7 +1,9 @@
 # coding: utf-8
 import os
 import logging
+import gettext
 
+from babel import Locale
 from werkzeug.utils import import_string
 
 
@@ -48,3 +50,8 @@ def get_logger(level_str):
 
 config = load_config()
 logger = get_logger(config.get('LOG_LEVEL'))
+locale = Locale(config.get('LANGUAGE'))
+language = gettext.translation('messages',
+                               localedir='locales',
+                               languages=[config.get('LANGUAGE')])
+language.install()

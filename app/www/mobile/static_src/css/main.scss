@@ -1,0 +1,115 @@
+@import './reset';
+@import './global';
+
+body {
+  background-color: black;
+}
+
+#container {
+  background-image: url('/static/img/capture.jpg');
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: 'Source Sans Pro', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  width: 100vw;
+
+  &.on-call {
+    background-image: none;
+    background-color: black;
+
+    #overlay, #message {
+      display: none;
+    }
+
+    #remote-video {
+      display: block;
+    }
+
+    @include horizontal {
+      .button_containers {
+        bottom: 20px;
+        .button {
+          position: absolute;
+          right: 20px;
+        }
+      }
+    }
+  }
+
+  .button_containers {
+    bottom: 60px;
+    height: $buttonSize;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    z-index: 4;
+
+    #btn-call {
+      background-color: #53d769;
+    }
+
+    #btn-hang-up {
+      background-color: #ff3b30;
+    }
+
+    .button {
+      border: none;
+      border-radius: 50%;
+      color: white;
+      display: block;
+      height: $buttonSize;
+      margin: 0 auto;
+      outline: none;
+      width: $buttonSize;
+
+      i {
+        font-size: 3.3em;
+      }
+
+      &.hide {
+        display: none;
+      }
+    }
+
+  }
+
+  #overlay {
+    background-color: black;
+    height: 100%;
+    opacity: 0.6;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+
+  #message {
+    color: white;
+    font-size: 40px;
+    left: 25px;
+    top: 50px;
+    position: absolute;
+    z-index: 2;
+
+  }
+
+  #remote-video {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 3;
+  }
+
+  #local-video {
+    display: none;
+  }
+
+}
+
+#dial {
+    display: none;
+}
+
+
