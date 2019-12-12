@@ -36,8 +36,8 @@ class Notification(Thread):
                     domain=config.get('WEB_APP_DOMAIN_NAME'),
                     port=config.get('WEB_APP_PORT'),
                     token=token.token)
-                message = '{message}  '\
-                          '[{call_cta_label}](call_cta_link)'.\
+                message = '{message}\n' \
+                          '[{call_cta_label}]({call_cta_link})'.\
                     format(
                         message=_('daemon/notification/front_door_message'),
                         call_cta_label=_('daemon/notification/call_cta_label'),
@@ -56,7 +56,7 @@ class Notification(Thread):
         try:
             bot.send_photo(chat_id=config.get('TELEGRAM_CHAT_ID'),
                            photo=self.__picture,
-                           caption='[{}] - Photo'.format(now),
+                           caption=_('Photo'),
                            disable_notification=True)
             logger.debug('Photo sent to Telegram')
         except Exception as e:

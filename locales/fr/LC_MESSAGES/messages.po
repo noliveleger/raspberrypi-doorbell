@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-12-09 16:09-0500\n"
-"PO-Revision-Date: 2019-12-09 17:34-0500\n"
+"PO-Revision-Date: 2019-12-12 14:15-0500\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -25,7 +25,7 @@ msgstr "On sonne à la porte d’entrée"
 
 #: app/threads/notification.py:43
 msgid "daemon/notification/call_cta_label"
-msgstr "Appeler"
+msgstr "APPELER"
 
 #: app/threads/notification.py:46
 msgid "daemon/notification/back_door_message"
