@@ -23,3 +23,4 @@ class TestingConfig(DefaultConfig):
 
     WEBRTC_CALL_HEARTBEAT_INTERVAL = 2
     AUTH_DATETIME_PADDING = 2
+    BUTTON_PRESS_THRESHOLD = 2

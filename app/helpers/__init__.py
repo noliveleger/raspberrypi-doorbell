@@ -38,3 +38,11 @@ class Singleton(type):
     def _locked_call(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+
+    @classmethod
+    def destroy(mcs, singleton):
+        """
+        Used for testing purposes
+        :param singleton:
+        """
+        del mcs._instances[singleton]

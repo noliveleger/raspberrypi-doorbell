@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
-import pytest
 
+import pytest
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
 

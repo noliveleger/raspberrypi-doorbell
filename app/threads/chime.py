@@ -13,6 +13,9 @@ class Chime(Thread):
     - Front door: Default (once)
     - Back door: Configurable in `*Config` classes. See `BACK_DOORBELL_RINGS_NUMBER`
     """
+
+    PAUSE_BETWEEN_STATES = 0.4
+
     def __init__(self, times=1):
         """
         Makes the bell chimes
@@ -31,9 +34,9 @@ class Chime(Thread):
             logger.debug('Ring bell, ring bell...')
             for i in range(0, self.__times):
                 self.__buzzer.on()
-                sleep(0.4)
+                sleep(self.PAUSE_BETWEEN_STATES)
                 self.__buzzer.off()
-                sleep(0.4)
+                sleep(self.PAUSE_BETWEEN_STATES)
         except Exception as e:
             logger.error(e)
 
