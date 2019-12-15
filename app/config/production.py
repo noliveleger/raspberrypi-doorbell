@@ -2,7 +2,7 @@
 from .default import DefaultConfig
 
 
-class ProdConfig(DefaultConfig):
+class ProductionConfig(DefaultConfig):
 
     ENV = 'prod'
 
